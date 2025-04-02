@@ -445,7 +445,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import { Star } from "lucide-react";
+
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -733,7 +733,7 @@ const PropertyDetails = () => {
               <h2 className="text-2xl font-bold mb-6 font-heading text-left">
                 About this place
               </h2>
-              <div className="text-gray-700 font-body leading-relaxed">
+              <div className="text-gray-700 font-body text-left leading-relaxed">
                 {property.description}
               </div>
             </div>

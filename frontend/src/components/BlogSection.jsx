@@ -223,7 +223,7 @@ const BlogSection = () => {
             className="text-left mb-6 md:mb-0"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-gray-800 drop-shadow-sm text-left">
-              Wanderlust Chronicles
+              Blogs
             </h2>
             <p className="text-gray-600 font-body text-left">
               Discover breathtaking destinations through our curated travel stories

@@ -2,19 +2,22 @@
 const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
+const City = require('../models/City');
 const multer = require('multer');
 
 // Configure multer to store files in memory
+const storage = multer.memoryStorage();
+
+// Configure upload settings
 const upload = multer({
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 // Define file upload middleware
 const uploadFields = upload.fields([
   { name: 'backgroundImage', maxCount: 1 },
-  { name: 'mustVisitImages', maxCount: 10 }
+  { name: 'blogImage', maxCount: 1 }
 ]);
 
 // Get all blogs
@@ -24,6 +27,17 @@ router.get('/', async (req, res) => {
     res.json(blogs);
   } catch (err) {
     console.error('Error fetching blogs:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get active blogs
+router.get('/active', async (req, res) => {
+  try {
+    const blogs = await Blog.find({ isActive: true }).sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (err) {
+    console.error('Error fetching active blogs:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -40,19 +54,64 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Helper to retrieve things to do data from cities
+async function getThingsToDo(thingIds) {
+  try {
+    // We need to find all the things by their IDs which are spread across cities
+    // Handle ObjectId conversion safely by using string comparison
+    const cities = await City.find();
+    
+    // Extract the selected things from each city and add city info
+    const thingsToDoData = [];
+    
+    thingIds.forEach(thingId => {
+      // Find the city containing this thing
+      for (const city of cities) {
+        const thing = city.thingsToDo.find(t => t._id.toString() === thingId);
+        if (thing) {
+          thingsToDoData.push({
+            thingId: thing._id.toString(),
+            cityId: city._id.toString(),
+            cityName: city.name,
+            heading: thing.heading,
+            description: thing.description,
+            image: thing.image
+          });
+          break; // Found the thing, move to the next one
+        }
+      }
+    });
+    
+    return thingsToDoData;
+  } catch (error) {
+    console.error('Error retrieving things to do:', error);
+    throw error;
+  }
+}
+
 // Create a new blog
 router.post('/', uploadFields, async (req, res) => {
   try {
-    const { title, description, mustVisitData } = req.body;
+    const { title, description, blogImageDescription, isActive } = req.body;
+    let thingsToDo = [];
     
-    // Validate required fields
-    if (!title || !description) {
-      return res.status(400).json({ message: 'Title and description are required' });
+    // Parse things to do IDs
+    if (req.body.thingsToDo) {
+      try {
+        thingsToDo = JSON.parse(req.body.thingsToDo);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid things to do format' });
+      }
     }
     
-    // Check if background image exists
-    if (!req.files || !req.files.backgroundImage) {
-      return res.status(400).json({ message: 'Background image is required' });
+    // Validate required fields
+    if (!title || !description || !blogImageDescription) {
+      return res.status(400).json({ message: 'Title, description, and blog image description are required' });
+    }
+    
+    // Check if images exist
+    if (!req.files || !req.files.backgroundImage || !req.files.blogImage) {
+      return res.status(400).json({ message: 'Background image and blog image are required' });
     }
     
     // Process background image
@@ -63,50 +122,30 @@ router.post('/', uploadFields, async (req, res) => {
       contentType: backgroundFile.mimetype
     };
     
-    // Process must visit things
-    let mustVisitThings = [];
-    if (mustVisitData) {
-      try {
-        const parsedMustVisit = JSON.parse(mustVisitData);
-        mustVisitThings = parsedMustVisit;
-        
-        // Process images for each must visit item
-        if (req.files.mustVisitImages && mustVisitThings.length > 0) {
-          const imageFiles = req.files.mustVisitImages;
-          
-          // Ensure we have the right number of images
-          if (imageFiles.length !== mustVisitThings.length) {
-            return res.status(400).json({ 
-              message: 'Number of must visit item images does not match number of items' 
-            });
-          }
-          
-          // Add images to each must visit item
-          mustVisitThings = mustVisitThings.map((item, index) => {
-            const file = imageFiles[index];
-            const base64 = file.buffer.toString('base64');
-            
-            return {
-              ...item,
-              image: {
-                data: `data:${file.mimetype};base64,${base64}`,
-                contentType: file.mimetype
-              }
-            };
-          });
-        }
-      } catch (err) {
-        console.error('Error parsing mustVisitData:', err);
-        return res.status(400).json({ message: 'Invalid must visit data format' });
-      }
+    // Process blog image
+    const blogImageFile = req.files.blogImage[0];
+    const blogImageBase64 = blogImageFile.buffer.toString('base64');
+    const blogImage = {
+      data: `data:${blogImageFile.mimetype};base64,${blogImageBase64}`,
+      contentType: blogImageFile.mimetype
+    };
+    
+    // Get full details for things to do
+    let mustVisitThingsData = [];
+    if (thingsToDo.length > 0) {
+      mustVisitThingsData = await getThingsToDo(thingsToDo);
     }
     
-    // Create new blog
+    // Create new blog - ensure we're using strings for IDs
     const blog = new Blog({
       title,
       description,
       backgroundImage,
-      mustVisitThings
+      blogImage,
+      blogImageDescription,
+      mustVisitThings: thingsToDo.map(id => id.toString()), // Store as strings
+      mustVisitThingsData, // Store full data
+      isActive: isActive === 'true' || isActive === true
     });
     
     const savedBlog = await blog.save();
@@ -123,12 +162,23 @@ router.put('/:id', uploadFields, async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     
-    const { title, description, mustVisitData, isActive } = req.body;
+    const { title, description, blogImageDescription, isActive } = req.body;
+    let thingsToDo = [];
+    
+    // Parse things to do IDs
+    if (req.body.thingsToDo) {
+      try {
+        thingsToDo = JSON.parse(req.body.thingsToDo);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid things to do format' });
+      }
+    }
     
     // Update text fields
     if (title) blog.title = title;
     if (description) blog.description = description;
-    if (isActive !== undefined) blog.isActive = isActive === 'true';
+    if (blogImageDescription) blog.blogImageDescription = blogImageDescription;
+    if (isActive !== undefined) blog.isActive = isActive === 'true' || isActive === true;
     
     // Update background image if provided
     if (req.files && req.files.backgroundImage) {
@@ -140,83 +190,23 @@ router.put('/:id', uploadFields, async (req, res) => {
       };
     }
     
-    // Update must visit things if provided
-    if (mustVisitData) {
-      try {
-        const parsedMustVisit = JSON.parse(mustVisitData);
-        
-        // Process images for must visit items if present
-        if (req.files && req.files.mustVisitImages) {
-          const imageMap = req.body.imageMap ? JSON.parse(req.body.imageMap) : {};
-          const imageFiles = req.files.mustVisitImages;
-          
-          // Merge existing and new must visit items
-          blog.mustVisitThings = parsedMustVisit.map((item, index) => {
-            // If item has an id, it's an existing item
-            if (item.id) {
-              const existingItem = blog.mustVisitThings.find(t => t._id.toString() === item.id);
-              
-              // Update heading and description
-              if (existingItem) {
-                existingItem.heading = item.heading;
-                existingItem.description = item.description;
-                
-                // Update image if provided for this item
-                if (imageMap[item.id] !== undefined) {
-                  const imageIndex = imageMap[item.id];
-                  const file = imageFiles[imageIndex];
-                  const base64 = file.buffer.toString('base64');
-                  
-                  existingItem.image = {
-                    data: `data:${file.mimetype};base64,${base64}`,
-                    contentType: file.mimetype
-                  };
-                }
-                
-                return existingItem;
-              }
-            }
-            
-            // New item - needs an image
-            const imageIndex = imageMap[`new-${index}`] !== undefined ? 
-              imageMap[`new-${index}`] : 
-              Object.values(imageMap).length;
-            
-            if (imageIndex >= imageFiles.length) {
-              throw new Error(`Missing image for new item at index ${index}`);
-            }
-            
-            const file = imageFiles[imageIndex];
-            const base64 = file.buffer.toString('base64');
-            
-            return {
-              heading: item.heading,
-              description: item.description,
-              image: {
-                data: `data:${file.mimetype};base64,${base64}`,
-                contentType: file.mimetype
-              }
-            };
-          });
-        } else {
-          // Just update text fields for existing items
-          blog.mustVisitThings = parsedMustVisit.map(item => {
-            if (item.id) {
-              const existingItem = blog.mustVisitThings.find(t => t._id.toString() === item.id);
-              if (existingItem) {
-                existingItem.heading = item.heading;
-                existingItem.description = item.description;
-                return existingItem;
-              }
-            }
-            // If no image provided for new item, can't add it
-            throw new Error('New must visit items require images');
-          });
-        }
-      } catch (err) {
-        console.error('Error updating must visit things:', err);
-        return res.status(400).json({ message: err.message });
-      }
+    // Update blog image if provided
+    if (req.files && req.files.blogImage) {
+      const blogImageFile = req.files.blogImage[0];
+      const blogImageBase64 = blogImageFile.buffer.toString('base64');
+      blog.blogImage = {
+        data: `data:${blogImageFile.mimetype};base64,${blogImageBase64}`,
+        contentType: blogImageFile.mimetype
+      };
+    }
+    
+    // Get full details for things to do - ensure we're using strings
+    if (thingsToDo.length > 0) {
+      blog.mustVisitThings = thingsToDo.map(id => id.toString()); // Store as strings
+      blog.mustVisitThingsData = await getThingsToDo(thingsToDo); // Store full data
+    } else {
+      blog.mustVisitThings = [];
+      blog.mustVisitThingsData = [];
     }
     
     const updatedBlog = await blog.save();

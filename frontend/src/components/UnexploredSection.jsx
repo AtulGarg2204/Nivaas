@@ -246,9 +246,7 @@ const UnexploredSection = () => {
                 </div>
                 
                 <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left">
-                  <div className="text-gray-500 text-xs font-body mb-1 uppercase tracking-wider">
-                    Shangri-la Inn
-                  </div>
+                 
                   <div className="text-gray-800 text-lg font-bold font-heading mb-3">
                     {thing.heading || 'Unnamed Destination'}
                   </div>
