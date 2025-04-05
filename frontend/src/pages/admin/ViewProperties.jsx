@@ -399,15 +399,25 @@ const ViewProperties = ({ onEditProperty = () => {} }) => {
                 {/* Amenities */}
                 <div>
                   <h4 className="font-heading font-bold text-lg mb-2">Amenities</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {modalData.amenities && modalData.amenities.map((amenity, index) => (
-                      <div key={index} className="flex items-center font-body">
-                        <i className={`fas ${amenity.icon} mr-2 text-gray-500`}></i>
-                        <span>{amenity.name}</span>
-                      </div>
-                    ))}
-                    {(!modalData.amenities || modalData.amenities.length === 0) && (
-                      <p className="text-gray-500 font-body">No amenities listed</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {modalData.amenities && modalData.amenities.length > 0 ? (
+                      modalData.amenities.map((amenity, index) => (
+                        <div key={index} className="flex items-center font-body bg-gray-50 rounded-md p-2">
+                          {/* Display custom icon image if available */}
+                          {amenity.icon && (
+                            <div className="h-6 w-6 mr-2 overflow-hidden">
+                              <img 
+                                src={amenity.icon} 
+                                alt={amenity.name}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                          )}
+                          <span className="text-sm">{amenity.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 font-body col-span-2">No amenities listed</p>
                     )}
                   </div>
                 </div>

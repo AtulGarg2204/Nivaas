@@ -7,7 +7,7 @@ const bannerRoutes = require('./routes/banner');
 const app = express();
 const reviewRoutes = require('./routes/review');
 const blogRoutes = require('./routes/blog');
-
+const uploadRoutes= require('./routes/upload');
 const propertyRoutes = require('./routes/property');
 const cityRoutes = require('./routes/city');
 // Middleware
@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/properties', propertyRoutes);
-
+app.use('/api/upload',uploadRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/cities', cityRoutes);
 app.use('/api/blogs', blogRoutes);

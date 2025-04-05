@@ -29,6 +29,16 @@ const ReviewSchema = new mongoose.Schema({
     type: String, // Base64 encoded image
     required: true
   },
+  referenceApp: {
+    name: {
+      type: String,
+      default: ''
+    },
+    logo: {
+      type: String, // Base64 encoded image
+      default: ''
+    }
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -39,4 +49,4 @@ const ReviewSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Review', ReviewSchema);
+module.exports = mongoose.model('Review', ReviewSchema); 

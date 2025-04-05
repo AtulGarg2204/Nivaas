@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Compass, MapPin } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -11,11 +12,11 @@ const BlogDetail = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef(null);
   const scrollContainerRef = useRef(null);
-
+  
   // Number of cards to display per view
   const cardsPerView = 3;
 
@@ -53,11 +54,7 @@ const BlogDetail = () => {
   // Handle mouse movement for gradient effect
   const handleMouseMove = (e) => {
     if (sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      setMousePosition({ 
-        x: e.clientX - rect.left, 
-        y: e.clientY - rect.top 
-      });
+      // Mouse movement effect code
     }
   };
 
@@ -162,10 +159,15 @@ const BlogDetail = () => {
     return null;
   };
 
+  // Function to safely render HTML content
+  const createMarkup = (html) => {
+    return { __html: html || '' };
+  };
+
   if (loading) {
     return (
       <div className="pt-20 min-h-screen bg-gradient-to-b from-white to-gray-50/50">
-        <div className="container mx-auto px-8 md:px-12 lg:px-16">
+        <div className="container mx-auto px-4">
           <div className="flex justify-center items-center min-h-[60vh]">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
@@ -177,7 +179,7 @@ const BlogDetail = () => {
   if (error || !blog) {
     return (
       <div className="pt-20 min-h-screen bg-gradient-to-b from-white to-gray-50/50">
-        <div className="container mx-auto px-8 md:px-12 lg:px-16">
+        <div className="container mx-auto px-4">
           <div className="text-left text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4 font-heading">Error</h2>
             <p>{error || 'Blog not found'}</p>
@@ -192,7 +194,7 @@ const BlogDetail = () => {
 
   const backgroundImage = getBackgroundImage(blog);
   const blogImage = getBlogImage(blog);
-  const visibleThings = thingsToDoData.slice(currentIndex, currentIndex + cardsPerView);
+  
 
   return (
     <div 
@@ -201,10 +203,10 @@ const BlogDetail = () => {
       onMouseMove={handleMouseMove}
     >
       {/* Background decorative elements */}
-      <div className="absolute -top-24 -left-24 w-64 h-64 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gradient-to-tl from-yellow-500/5 to-red-500/5 rounded-full blur-3xl"></div>
+      <div className="fixed -top-24 -left-24 w-64 h-64 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="fixed -bottom-32 -right-32 w-96 h-96 bg-gradient-to-tl from-yellow-500/5 to-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
       
-      <div className="container mx-auto px-8 md:px-12 lg:px-16 relative z-10">
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -217,41 +219,51 @@ const BlogDetail = () => {
           </Link>
         </motion.div>
 
-        {/* Background Image with Title Overlay */}
+        {/* Background Image with Title Overlay - Fixed position issues */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative rounded-xl overflow-hidden mb-8"
+          className="relative rounded-xl overflow-hidden mb-8 mx-auto max-w-5xl"
         >
-          {backgroundImage ? (
-            <img 
-              src={backgroundImage} 
-              alt={blog.title} 
-              className="w-full h-auto aspect-[16/9] object-cover"
-            />
-          ) : (
-            <div className="w-full h-64 bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center">
-              <Compass className="w-16 h-16 text-white" />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2 font-heading text-left drop-shadow-sm">
-              {blog.title}
-            </h1>
-            <div className="flex items-center text-gray-200 text-sm font-body space-x-4">
-              <span className="flex items-center">
-                <MapPin size={16} className="mr-1" />
-                Travel Destination
-              </span>
-              <span>
-                {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US', { 
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                }) : ""}
-              </span>
+          <div className="relative">
+            {backgroundImage ? (
+              <img 
+                src={backgroundImage} 
+                alt={blog.title} 
+                className="w-full h-auto aspect-[16/9] object-cover"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center">
+                <Compass className="w-16 h-16 text-white" />
+              </div>
+            )}
+            <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+              <h1 className="text-2xl md:text-4xl font-bold text-white mb-2 font-heading text-left drop-shadow-sm">
+                {blog.title}
+              </h1>
+              <div className="flex items-center text-gray-200 text-sm font-body space-x-4">
+                {blog.city && blog.city.cityName && (
+                  <span className="flex items-center">
+                    <MapPin size={16} className="mr-1" />
+                    {blog.city.cityName}
+                  </span>
+                )}
+                {(!blog.city || !blog.city.cityName) && (
+                  <span className="flex items-center">
+                    <MapPin size={16} className="mr-1" />
+                    Travel Destination
+                  </span>
+                )}
+                <span>
+                  {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) : ""}
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -261,7 +273,7 @@ const BlogDetail = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8"
+          className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8 mx-auto max-w-5xl"
         >
           <h2 className="text-2xl font-bold mb-4 font-heading text-gray-800 text-left">
             About This Destination
@@ -277,20 +289,42 @@ const BlogDetail = () => {
           </div>
         </motion.div>
 
+        {/* CKEditor Rich Text Content Section */}
+        {blog.editorContent && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8 mx-auto max-w-5xl"
+          >
+            <h2 className="text-2xl font-bold mb-6 font-heading text-gray-800 text-left border-b pb-4">
+              Text Editor Testing
+            </h2>
+            <div 
+              className="prose prose-lg max-w-none font-body text-gray-700 text-left"
+              dangerouslySetInnerHTML={createMarkup(blog.editorContent)}
+            >
+              {/* CKEditor content rendered here */}
+            </div>
+          </motion.div>
+        )}
+
         {/* Blog Image and Description */}
         {blogImage && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden mb-8"
+            className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 mx-auto max-w-5xl"
           >
-            <img 
-              src={blogImage} 
-              alt={blog.title} 
-              className="w-full h-auto object-cover"
-            />
-            <div className="p-6 md:p-8 text-left">
+            <div className="px-4 sm:px-6 md:px-12 py-6">
+              <img 
+                src={blogImage} 
+                alt={blog.title} 
+                className="w-full h-auto object-cover rounded-xl shadow-md"
+              />
+            </div>
+            <div className="p-4 sm:p-6 md:p-8 text-left">
               <div className="prose max-w-none font-body text-gray-700">
                 <p>{blog.blogImageDescription}</p>
               </div>
@@ -382,10 +416,10 @@ const BlogDetail = () => {
                       <div className="relative">
                         <div className="aspect-[4/3] overflow-hidden">
                           {/* Reflection effect on top */}
-                          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/20 to-transparent z-20"></div>
+                          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/20 to-transparent z-10"></div>
                           
                           {/* Gradient overlay on image */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-10 opacity-40 transition-opacity duration-300"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-5 opacity-40 transition-opacity duration-300"></div>
                           
                           {/* Image - using direct string path from schema */}
                           <img 
@@ -398,13 +432,13 @@ const BlogDetail = () => {
                             }}
                           />
                         </div>
-                        <div className="absolute top-3 left-3 z-30">
+                        <div className="absolute top-3 left-3 z-20">
                           <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs font-bold px-3 py-1 rounded-full font-body shadow-lg shadow-blue-500/20">
                             Must Visit
                           </span>
                         </div>
                         {thing.cityName && (
-                          <div className="absolute top-3 right-3 z-30">
+                          <div className="absolute top-3 right-3 z-20">
                             <span className="bg-white/90 backdrop-blur-sm text-blue-600 text-xs font-medium px-3 py-1 rounded-full font-body shadow-sm">
                               {thing.cityName}
                             </span>
@@ -534,6 +568,7 @@ const BlogDetail = () => {
           </motion.div>
         )}
       </div>
+      <Footer/>
     </div>
   );
 };

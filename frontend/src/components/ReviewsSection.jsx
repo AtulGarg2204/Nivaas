@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { ChevronLeft, ChevronRight, MessageSquare, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const ReviewsSection = () => {
@@ -9,9 +9,11 @@ const ReviewsSection = () => {
   const [error, setError] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [expandedReviews, setExpandedReviews] = useState({});
   const sectionRef = useRef(null);
 
   const visibleReviews = 3; // Number of reviews visible at once
+  const maxCharacters = 150; // Maximum characters to display before truncating
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -36,6 +38,55 @@ const ReviewsSection = () => {
 
   const handleNext = () => {
     setCurrentIndex(prev => (prev + visibleReviews < reviews.length ? prev + 1 : prev));
+  };
+
+  // Toggle expanded state for a review
+  const toggleExpanded = (reviewId) => {
+    setExpandedReviews(prev => ({
+      ...prev,
+      [reviewId]: !prev[reviewId]
+    }));
+  };
+
+  // Function to display truncated text with a "Read more" button
+  const renderReviewText = (review, index) => {
+    // Create a unique ID for each review
+    const id = `review-${index}-${review._id || Math.random().toString()}`;
+    const isExpanded = expandedReviews[id];
+    const description = review.description || '';
+    const shouldTruncate = description.length > maxCharacters;
+    
+    if (!shouldTruncate) {
+      return <p className="text-gray-700 font-body text-base italic break-words">"{description}"</p>;
+    }
+    
+    return (
+      <div className="w-full">
+        <p className="text-gray-700 font-body text-base italic break-words">
+          {isExpanded 
+            ? `"${description}"` 
+            : `"${description.substring(0, maxCharacters)}..."`
+          }
+        </p>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleExpanded(id);
+          }}
+          className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+        >
+          {isExpanded ? (
+            <>
+              Show less <ChevronUp size={16} className="ml-1" />
+            </>
+          ) : (
+            <>
+              Read more <ChevronDown size={16} className="ml-1" />
+            </>
+          )}
+        </button>
+      </div>
+    );
   };
 
   // Generate star rating display with animation
@@ -213,69 +264,93 @@ const ReviewsSection = () => {
           animate="visible"
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {reviews.slice(currentIndex, currentIndex + visibleReviews).map((review, index) => (
-            <motion.div 
-              key={review._id || index}
-              variants={itemVariants}
-              onHoverStart={() => setHoveredIndex(index)}
-              onHoverEnd={() => setHoveredIndex(null)}
-              className="flex flex-col h-full"
-            >
-              <div 
-                className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100/80 h-full flex flex-col relative overflow-hidden transform transition-all duration-500 hover:shadow-xl hover:-translate-y-1"
-                style={{
-                  background: hoveredIndex === index 
-                    ? "linear-gradient(to bottom right, white, #f8fafc, #f0f7ff)" 
-                    : "white"
-                }}
+          {reviews.slice(currentIndex, currentIndex + visibleReviews).map((review, index) => {
+            // Create unique ID for this review card
+            const reviewId = `review-${index}-${review._id || Math.random().toString()}`;
+            const isExpanded = expandedReviews[reviewId];
+            
+            return (
+              <motion.div 
+                key={reviewId}
+                variants={itemVariants}
+                onHoverStart={() => setHoveredIndex(index)}
+                onHoverEnd={() => setHoveredIndex(null)}
+                className="flex flex-col h-full"
               >
-                {/* Decorative quote element */}
-                <div className="absolute -top-2 -right-2 text-blue-100 transform rotate-12">
-                  <Quote size={40} />
-                </div>
-                
-                <div className="flex mb-3 relative z-10">
-                  {renderStars(review.rating)}
-                </div>
-                
-                <div className="mb-6 flex-grow relative z-10">
-                  <p className="text-gray-700 font-body text-base italic">"{review.description}"</p>
-                </div>
-                
-                <div className="flex items-center mt-auto pt-4 border-t border-gray-100 relative z-10">
-                  <div className="relative">
-                    <img 
-                      src={review.profilePicture || 'https://via.placeholder.com/40'} 
-                      alt={review.userName} 
-                      className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
-                    />
-                    {hoveredIndex === index && (
-                      <motion.div 
-                        className="absolute -top-1 -right-1 bg-blue-500 rounded-full p-1"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                      >
-                        <MessageSquare size={10} className="text-white" />
-                      </motion.div>
+                <div 
+                  className={`bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100/80 flex flex-col relative overflow-visible transform transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
+                    isExpanded ? 'z-20' : ''
+                  }`}
+                  style={{
+                    background: hoveredIndex === index 
+                      ? "linear-gradient(to bottom right, white, #f8fafc, #f0f7ff)" 
+                      : "white",
+                    height: isExpanded ? 'auto' : '',
+                    minHeight: '100%'
+                  }}
+                >
+                  {/* Decorative quote element */}
+                  <div className="absolute -top-2 -right-2 text-blue-100 transform rotate-12">
+                    <Quote size={40} />
+                  </div>
+                  
+                  <div className="flex mb-3 relative z-10">
+                    {renderStars(review.rating)}
+                  </div>
+                  
+                  <div className="mb-6 flex-grow relative z-10 w-full overflow-visible">
+                    {renderReviewText(review, index)}
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 relative z-10">
+                    <div className="flex items-center">
+                      <div className="relative">
+                        <img 
+                          src={review.profilePicture || 'https://via.placeholder.com/40'} 
+                          alt={review.userName} 
+                          className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
+                        />
+                        {hoveredIndex === index && (
+                          <motion.div 
+                            className="absolute -top-1 -right-1 bg-blue-500 rounded-full p-1"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                          >
+                            <MessageSquare size={10} className="text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium font-body text-gray-900">{review.userName}</p>
+                        <p className="text-gray-500 text-sm font-body">{review.city}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Reference App Logo - Now in a circle just like profile picture */}
+                    {review.referenceApp?.logo && (
+                      <div className="ml-auto">
+                        <img 
+                          src={review.referenceApp.logo} 
+                          alt={review.referenceApp.name || "Reference App"} 
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                          title={review.referenceApp.name || ""}
+                        />
+                      </div>
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium font-body text-gray-900">{review.userName}</p>
-                    <p className="text-gray-500 text-sm font-body">{review.city}</p>
-                  </div>
+                  
+                  {/* Bottom accent */}
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 transform scale-x-0 origin-left transition-transform duration-300"
+                    style={{
+                      transform: hoveredIndex === index ? 'scaleX(1)' : 'scaleX(0)'
+                    }}
+                  ></div>
                 </div>
-                
-                {/* Bottom accent */}
-                <div 
-                  className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 transform scale-x-0 origin-left transition-transform duration-300"
-                  style={{
-                    transform: hoveredIndex === index ? 'scaleX(1)' : 'scaleX(0)'
-                  }}
-                ></div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </div>

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Upload, X, ChevronDown, CheckSquare, Square } from 'lucide-react';
+// Import CKEditor components - the modern way
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { ClassicEditor, Paragraph, Bold, Italic, Essentials, Heading, Image, ImageUpload, Link, MediaEmbed, BlockQuote, Table } from 'ckeditor5';
+
+// Import the required CSS
+import 'ckeditor5/ckeditor5.css';
 
 const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
   const [loading, setLoading] = useState(false);
@@ -9,7 +15,11 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
     title: '',
     description: '',
     blogImageDescription: '',
-    isActive: true
+    isActive: true,
+    cityId: '',
+    cityName: '',
+    otherCityName: '',
+    editorContent: '' // For CKEditor content
   });
   
   // Images
@@ -38,7 +48,11 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
         title: editingBlog.title || '',
         description: editingBlog.description || '',
         blogImageDescription: editingBlog.blogImageDescription || '',
-        isActive: editingBlog.isActive !== undefined ? editingBlog.isActive : true
+        isActive: editingBlog.isActive !== undefined ? editingBlog.isActive : true,
+        cityId: editingBlog.city?.cityId || '',
+        cityName: editingBlog.city?.cityName || '',
+        otherCityName: editingBlog.city?.cityId === 'other' ? editingBlog.city.cityName : '',
+        editorContent: editingBlog.editorContent || ''
       });
       
       // Set background image preview if available
@@ -93,6 +107,44 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+    
+    // When city changes, update cityName accordingly
+    if (name === 'cityId') {
+      if (value === 'other') {
+        // If "Other" is selected, keep the cityName empty to be filled by otherCityName
+        setFormData(prev => ({
+          ...prev,
+          cityId: value,
+          cityName: ''
+        }));
+      } else if (value) {
+        // If a city is selected, find its name and update cityName
+        const selectedCity = cities.find(city => city._id === value);
+        if (selectedCity) {
+          setFormData(prev => ({
+            ...prev,
+            cityId: value,
+            cityName: selectedCity.name
+          }));
+        }
+      } else {
+        // If no city is selected, clear cityName
+        setFormData(prev => ({
+          ...prev,
+          cityId: '',
+          cityName: ''
+        }));
+      }
+    }
+  };
+
+  // Handle CKEditor content change
+  const handleEditorChange = (event, editor) => {
+    const data = editor.getData();
+    setFormData(prev => ({
+      ...prev,
+      editorContent: data
+    }));
   };
 
   const handleBackgroundImageChange = (e) => {
@@ -126,7 +178,11 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
       title: '',
       description: '',
       blogImageDescription: '',
-      isActive: true
+      isActive: true,
+      cityId: '',
+      cityName: '',
+      otherCityName: '',
+      editorContent: ''
     });
     setBackgroundImage(null);
     setBackgroundPreview('');
@@ -145,6 +201,14 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
     blogFormData.append('description', formData.description);
     blogFormData.append('blogImageDescription', formData.blogImageDescription);
     blogFormData.append('isActive', formData.isActive);
+    blogFormData.append('editorContent', formData.editorContent);
+    
+    // Add city information
+    blogFormData.append('cityId', formData.cityId);
+    
+    // If "Other" is selected, use the otherCityName as cityName
+    const cityName = formData.cityId === 'other' ? formData.otherCityName : formData.cityName;
+    blogFormData.append('cityName', cityName);
     
     // Add background image
     if (backgroundImage) {
@@ -181,6 +245,12 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
     
     if (!formData.blogImageDescription) {
       setMessage({ text: 'Blog image description is required', type: 'error' });
+      return false;
+    }
+    
+    // Validate city selection
+    if (formData.cityId === 'other' && !formData.otherCityName.trim()) {
+      setMessage({ text: 'Please enter a city name for "Other" option', type: 'error' });
       return false;
     }
     
@@ -240,6 +310,42 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
     cityFilter === 'all' || thing.cityId === cityFilter
   );
 
+  // Configure image upload adapter for CKEditor
+  class MyUploadAdapter {
+    constructor(loader) {
+      this.loader = loader;
+    }
+  
+    upload() {
+      return this.loader.file
+        .then(file => {
+          return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('upload', file);
+  
+            axios.post(`${process.env.REACT_APP_API_URL}/api/upload/ckeditor-image`, formData)
+              .then(response => {
+                // Add a small delay to let the editor stabilize
+                setTimeout(() => {
+                  resolve({
+                    default: response.data.url
+                  });
+                }, 100);
+              })
+              .catch(error => {
+                reject(error);
+              });
+          });
+        });
+    }
+  }
+
+  function MyCustomUploadAdapterPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+      return new MyUploadAdapter(loader);
+    };
+  }
+
   return (
     <div>
       {/* Message display */}
@@ -271,6 +377,45 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
+          </div>
+          
+          {/* City Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
+              City
+            </label>
+            <select
+              name="cityId"
+              value={formData.cityId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+            >
+              <option value="">Select a City (Optional)</option>
+              {cities.map(city => (
+                <option key={city._id} value={city._id}>
+                  {city.name}
+                </option>
+              ))}
+              <option value="other">Other</option>
+            </select>
+            
+            {/* Show this field only when "Other" is selected */}
+            {formData.cityId === 'other' && (
+              <div className="mt-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
+                  Other City Name *
+                </label>
+                <input
+                  type="text"
+                  name="otherCityName"
+                  value={formData.otherCityName}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter city name"
+                />
+              </div>
+            )}
           </div>
           
           {/* Background Image */}
@@ -319,6 +464,44 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
               className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             ></textarea>
           </div>
+
+          {/* CKEditor Rich Text Editor */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
+              Blog Content (Rich Text)
+            </label>
+            <div className="border border-gray-300 rounded-md">
+              <CKEditor
+                editor={ClassicEditor}
+                data={formData.editorContent}
+                onChange={handleEditorChange}
+                config={{
+                  licenseKey: 'GPL',
+                  plugins: [
+                    Essentials, Paragraph, Bold, Italic, Heading,
+                    Image, ImageUpload, Link, MediaEmbed, BlockQuote, Table
+                  ],
+                  toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'imageUpload', 'blockQuote', 'insertTable', '|',
+                    'undo', 'redo'
+                  ],
+                  extraPlugins: [MyCustomUploadAdapterPlugin]
+                }}
+                onReady={editor => {
+                  console.log('Editor is ready to use!', editor);
+                }}
+                onError={(error, { willEditorRestart }) => {
+                  console.error('CKEditor error:', error);
+                  if (willEditorRestart) {
+                    console.log('Editor will be restarted');
+                  }
+                }}
+              />
+            </div>
+          </div>
           
           {/* Blog Image */}
           <div>
@@ -345,7 +528,7 @@ const AddBlog = ({ editingBlog = null, onEditComplete = () => {} }) => {
               <div className="mt-2 relative">
                 <img
                   src={blogImagePreview}
-                  alt="Blog image preview"
+                  alt="Blog preview"
                   className="h-48 w-full object-cover rounded-md border border-gray-200"
                 />
               </div>

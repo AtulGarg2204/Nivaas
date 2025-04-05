@@ -46,7 +46,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       description, price, brochureLink, video, mapLink
     } = req.body;
     
-    // Parse amenities from JSON string
+    // Parse amenities from JSON string - now supports dynamic amenities
     let amenities = [];
     if (req.body.amenities) {
       amenities = JSON.parse(req.body.amenities);
@@ -77,7 +77,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       brochureLink,
       video,
       mapLink,
-      amenities,
+      amenities, // Dynamic amenities are now stored directly
       images,
       reviews: []
     });
@@ -116,7 +116,7 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
       }
     });
     
-    // Update amenities if provided
+    // Update amenities if provided - now handling dynamic amenities
     if (req.body.amenities) {
       property.amenities = JSON.parse(req.body.amenities);
     }

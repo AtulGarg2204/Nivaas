@@ -354,7 +354,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Upload, X, PlusCircle } from 'lucide-react';
+import { X, PlusCircle } from 'lucide-react';
 
 const CityManagement = ({ editingCity, onEditComplete }) => {
   const [cities, setCities] = useState([]);
@@ -376,7 +376,7 @@ const CityManagement = ({ editingCity, onEditComplete }) => {
     heading: '',
     description: ''
   });
-  
+  console.log(cities);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 

@@ -39,6 +39,26 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get banners by type
+router.get('/type/:bannerType', async (req, res) => {
+  try {
+    const { bannerType } = req.params;
+    // Get banners that are either specific type or 'both'
+    const banners = await Banner.find({
+      $or: [
+        { bannerType },
+        { bannerType: 'both' }
+      ],
+      isActive: true
+    }).sort({ order: 1 });
+    
+    res.json(banners);
+  } catch (err) {
+    console.error(`Error fetching ${req.params.bannerType} banners:`, err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Create a new banner with file upload support
 router.post('/', upload.single('image'), async (req, res) => {
   try {
@@ -53,6 +73,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       title: req.body.title,
       subtitle: req.body.subtitle,
       imageUrl: imageUrl,
+      bannerType: req.body.bannerType || 'desktop', // Add bannerType
       isActive: req.body.isActive === 'true' || req.body.isActive === true,
       order: req.body.order !== undefined ? Number(req.body.order) : 0
     });
@@ -82,6 +103,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     banner.title = req.body.title || banner.title;
     banner.subtitle = req.body.subtitle || banner.subtitle;
     banner.imageUrl = imageUrl;
+    banner.bannerType = req.body.bannerType || banner.bannerType; // Add bannerType
     banner.isActive = req.body.isActive === 'true' || req.body.isActive === true;
     banner.order = req.body.order !== undefined ? Number(req.body.order) : banner.order;
     

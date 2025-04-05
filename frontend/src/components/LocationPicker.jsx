@@ -8,6 +8,7 @@ const LocationPicker = () => {
   const [error, setError] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollContainerRef = useRef(null);
+  const [cardsPerView, setCardsPerView] = useState(5); // Default for desktop
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -24,6 +25,29 @@ const LocationPicker = () => {
     };
 
     fetchCities();
+  }, []);
+
+  // Function to update cards per view based on screen size
+  const updateCardsPerView = () => {
+    if (window.innerWidth < 640) {
+      setCardsPerView(1); // Mobile: 1 card
+    } else if (window.innerWidth < 768) {
+      setCardsPerView(2); // Small tablets: 2 cards
+    } else if (window.innerWidth < 1024) {
+      setCardsPerView(3); // Tablets: 3 cards
+    } else {
+      setCardsPerView(5); // Desktop: 5 cards
+    }
+  };
+
+  // Initialize and listen for window resize
+  useEffect(() => {
+    updateCardsPerView();
+    window.addEventListener('resize', updateCardsPerView);
+    
+    return () => {
+      window.removeEventListener('resize', updateCardsPerView);
+    };
   }, []);
 
   const scroll = (direction) => {
@@ -95,9 +119,15 @@ const LocationPicker = () => {
     );
   }
 
+  // Calculate card width based on cards per view
+  const getCardWidth = () => {
+    const gapPercentage = (cardsPerView - 1) * 16 / cardsPerView; // account for gaps
+    return `calc(${100 / cardsPerView}% - ${gapPercentage}px)`;
+  };
+
   return (
-    <div className="py-12 pt-20 bg-white border-b border-gray-100">
-      <div className="container mx-auto px-4 md:px-6">
+    <div className="py-16 bg-white border-b border-gray-100">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
         <div className="text-left mb-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-gray-800">
             Pick Your Location
@@ -111,7 +141,7 @@ const LocationPicker = () => {
           {/* Left Arrow Button */}
           <button 
             onClick={() => scroll('left')}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 bg-white/90 rounded-full p-2 shadow-lg text-gray-800 transition-colors duration-300 focus:outline-none ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-gray-100'}`}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 rounded-full p-2 shadow-lg text-gray-800 transition-colors duration-300 focus:outline-none ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-gray-100'}`}
             aria-label="Scroll left"
             disabled={activeIndex === 0}
           >
@@ -123,13 +153,13 @@ const LocationPicker = () => {
           {/* Scrollable Container */}
           <div 
             ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto hide-scrollbar"
+            className="flex gap-4 overflow-x-auto hide-scrollbar py-2 px-2"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
               overflowY: 'hidden',
               WebkitOverflowScrolling: 'touch',
-              paddingBottom: '5px' // small padding to ensure no weird cutoffs
+              scrollSnapType: 'x mandatory' // Add snap scrolling
             }}
           >
             {cities.map((city, index) => (
@@ -138,8 +168,9 @@ const LocationPicker = () => {
                 className="location-card"
                 data-index={index}
                 style={{ 
-                  width: 'calc(33.333% - 11px)', 
-                  flexShrink: 0 
+                  width: getCardWidth(),
+                  flexShrink: 0,
+                  scrollSnapAlign: 'start' // Snap to start of card
                 }}
               >
                 <Link 
@@ -161,10 +192,10 @@ const LocationPicker = () => {
                       
                       <div className="absolute inset-0 flex items-end z-30">
                         <div className="p-4 w-full">
-                          <h3 className="text-white text-xl font-bold font-heading mb-1">
+                          <h3 className="text-white text-lg font-bold font-heading mb-1">
                             {city.name}
                           </h3>
-                          <p className="text-white/90 text-sm font-body">
+                          <p className="text-white/90 text-xs font-body">
                             Discover amazing places in {city.name}
                           </p>
                         </div>
@@ -179,7 +210,7 @@ const LocationPicker = () => {
           {/* Right Arrow Button */}
           <button 
             onClick={() => scroll('right')}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 bg-white/90 rounded-full p-2 shadow-lg text-gray-800 transition-colors duration-300 focus:outline-none ${activeIndex === cities.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-gray-100'}`}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 rounded-full p-2 shadow-lg text-gray-800 transition-colors duration-300 focus:outline-none ${activeIndex === cities.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-gray-100'}`}
             aria-label="Scroll right"
             disabled={activeIndex === cities.length - 1}
           >
@@ -210,7 +241,7 @@ const LocationPicker = () => {
                   setActiveIndex(index);
                 }
               }}
-              className={`mx-1 focus:outline-none`}
+              className="mx-1 focus:outline-none"
               aria-label={`Go to slide ${index + 1}`}
             >
               <span className={`block h-2 w-2 rounded-full transition-colors duration-300 ${

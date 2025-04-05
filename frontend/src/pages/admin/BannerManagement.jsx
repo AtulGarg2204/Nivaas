@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Upload } from 'lucide-react';
 
 const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) => {
   const [banners, setBanners] = useState([]);
@@ -8,10 +7,11 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
     title: '',
     subtitle: '',
     imageUrl: '',
+    bannerType: 'desktop', // Default to desktop
     isActive: true,
     order: 0
   });
-  
+  console.log(banners);
   const [bannerImage, setBannerImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   
@@ -30,6 +30,7 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
         title: editingBanner.title || '',
         subtitle: editingBanner.subtitle || '',
         imageUrl: editingBanner.imageUrl || '',
+        bannerType: editingBanner.bannerType || 'desktop',
         isActive: editingBanner.isActive !== undefined ? editingBanner.isActive : true,
         order: editingBanner.order || 0
       });
@@ -111,6 +112,7 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
         title: '',
         subtitle: '',
         imageUrl: '',
+        bannerType: 'desktop',
         isActive: true,
         order: 0
       });
@@ -174,6 +176,31 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
           </div>
         </div>
         
+        {/* Banner Type Selection */}
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-2 font-body text-left" htmlFor="bannerType">
+            Banner Type
+          </label>
+          <select
+            id="bannerType"
+            name="bannerType"
+            value={formData.bannerType}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-body"
+          >
+            <option value="desktop">Desktop</option>
+            <option value="mobile">Mobile</option>
+            <option value="both">Both Desktop & Mobile</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1 font-body">
+            {formData.bannerType === 'desktop' 
+              ? 'This banner will only be displayed on desktop devices'
+              : formData.bannerType === 'mobile'
+                ? 'This banner will only be displayed on mobile devices'
+                : 'This banner will be displayed on both desktop and mobile devices'}
+          </p>
+        </div>
+        
         <div className="mb-6">
           <label className="block text-gray-700 mb-2 font-body text-left">
             Banner Image
@@ -192,6 +219,13 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
                 onChange={handleImageUpload}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
+              <p className="text-xs text-gray-500 mt-2">
+                {formData.bannerType === 'desktop' 
+                  ? 'Recommended size: 1920 x 800 px'
+                  : formData.bannerType === 'mobile'
+                    ? 'Recommended size: 768 x 1024 px'
+                    : 'Desktop: 1920 x 800 px, Mobile: 768 x 1024 px'}
+              </p>
             </div>
             
             {/* OR Divider */}
@@ -273,6 +307,7 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
                   title: '',
                   subtitle: '',
                   imageUrl: '',
+                  bannerType: 'desktop',
                   isActive: true,
                   order: 0
                 });

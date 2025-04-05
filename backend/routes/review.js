@@ -11,6 +11,12 @@ const upload = multer({
   }
 });
 
+// Multiple file upload middleware
+const uploadFields = upload.fields([
+  { name: 'profilePicture', maxCount: 1 },
+  { name: 'referenceAppLogo', maxCount: 1 }
+]);
+
 // Get all reviews
 router.get('/', async (req, res) => {
   try {
@@ -35,15 +41,24 @@ router.get('/city/:cityId', async (req, res) => {
 });
 
 // Create a new review
-router.post('/', upload.single('profilePicture'), async (req, res) => {
+router.post('/', uploadFields, async (req, res) => {
   try {
-    const { userName, cityId, city, rating, description } = req.body;
+    const { userName, cityId, city, rating, description, referenceAppName } = req.body;
     
     // Process uploaded profile picture to base64
     let profilePicture = '';
-    if (req.file) {
-      const base64Image = req.file.buffer.toString('base64');
-      profilePicture = `data:${req.file.mimetype};base64,${base64Image}`;
+    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
+      const file = req.files.profilePicture[0];
+      const base64Image = file.buffer.toString('base64');
+      profilePicture = `data:${file.mimetype};base64,${base64Image}`;
+    }
+    
+    // Process uploaded reference app logo to base64
+    let referenceAppLogo = '';
+    if (req.files && req.files.referenceAppLogo && req.files.referenceAppLogo[0]) {
+      const file = req.files.referenceAppLogo[0];
+      const base64Image = file.buffer.toString('base64');
+      referenceAppLogo = `data:${file.mimetype};base64,${base64Image}`;
     }
     
     const review = new Review({
@@ -52,7 +67,11 @@ router.post('/', upload.single('profilePicture'), async (req, res) => {
       city,
       rating: parseInt(rating),
       description,
-      profilePicture
+      profilePicture,
+      referenceApp: {
+        name: referenceAppName || '',
+        logo: referenceAppLogo
+      }
     });
     
     const newReview = await review.save();
@@ -64,7 +83,7 @@ router.post('/', upload.single('profilePicture'), async (req, res) => {
 });
 
 // Update a review
-router.put('/:id', upload.single('profilePicture'), async (req, res) => {
+router.put('/:id', uploadFields, async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ message: 'Review not found' });
@@ -83,12 +102,39 @@ router.put('/:id', upload.single('profilePicture'), async (req, res) => {
       }
     });
     
-    // Update profile picture if provided
-    if (req.file) {
-      const base64Image = req.file.buffer.toString('base64');
-      review.profilePicture = `data:${req.file.mimetype};base64,${base64Image}`;
+    // Update reference app name if provided
+    if (req.body.referenceAppName !== undefined) {
+      review.referenceApp.name = req.body.referenceAppName;
     }
     
+    // Update profile picture if provided
+    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
+      const file = req.files.profilePicture[0];
+      const base64Image = file.buffer.toString('base64');
+      review.profilePicture = `data:${file.mimetype};base64,${base64Image}`;
+    }
+    
+    // Update reference app logo if provided
+    if (req.files && req.files.referenceAppLogo && req.files.referenceAppLogo[0]) {
+      const file = req.files.referenceAppLogo[0];
+      const base64Image = file.buffer.toString('base64');
+      review.referenceApp.logo = `data:${file.mimetype};base64,${base64Image}`;
+    }
+    
+    const updatedReview = await review.save();
+    res.json(updatedReview);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Toggle review status
+router.put('/:id/toggle-status', async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    
+    review.isActive = req.body.isActive;
     const updatedReview = await review.save();
     res.json(updatedReview);
   } catch (err) {

@@ -1,4 +1,3 @@
-// frontend/src/pages/admin/AddReview.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Upload, Star } from 'lucide-react';
@@ -13,10 +12,13 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
     city: '',
     rating: 5,
     description: '',
+    referenceAppName: '',
     isActive: true
   });
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePreview, setProfilePreview] = useState('');
+  const [referenceAppLogo, setReferenceAppLogo] = useState(null);
+  const [referenceAppLogoPreview, setReferenceAppLogoPreview] = useState('');
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
@@ -33,11 +35,16 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
         city: editingReview.city || '',
         rating: editingReview.rating || 5,
         description: editingReview.description || '',
+        referenceAppName: editingReview.referenceApp?.name || '',
         isActive: editingReview.isActive !== undefined ? editingReview.isActive : true
       });
       
       if (editingReview.profilePicture) {
         setProfilePreview(editingReview.profilePicture);
+      }
+      
+      if (editingReview.referenceApp?.logo) {
+        setReferenceAppLogoPreview(editingReview.referenceApp.logo);
       }
       
       setEditingId(editingReview._id);
@@ -90,6 +97,14 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
     }
   };
 
+  const handleReferenceAppLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setReferenceAppLogo(file);
+      setReferenceAppLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleRatingChange = (rating) => {
     setFormData(prev => ({ ...prev, rating }));
   };
@@ -124,6 +139,11 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
         formDataToSubmit.append('profilePicture', profilePicture);
       }
       
+      // Add reference app logo if available
+      if (referenceAppLogo) {
+        formDataToSubmit.append('referenceAppLogo', referenceAppLogo);
+      }
+      
       // Submit the form data
       if (editingId) {
         await axios.put(
@@ -156,10 +176,13 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
         city: cities.length > 0 ? cities[0].name : '',
         rating: 5,
         description: '',
+        referenceAppName: '',
         isActive: true
       });
       setProfilePicture(null);
       setProfilePreview('');
+      setReferenceAppLogo(null);
+      setReferenceAppLogoPreview('');
       setEditingId(null);
       
       // Notify parent component that editing is complete
@@ -255,6 +278,21 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
               </div>
             </div>
             
+            {/* Reference App Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
+                Reference App Name
+              </label>
+              <input
+                type="text"
+                name="referenceAppName"
+                value={formData.referenceAppName}
+                onChange={handleChange}
+                placeholder="e.g. Airbnb, Booking.com"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
             {/* Profile Picture */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
@@ -283,6 +321,39 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
                   <img 
                     src={profilePreview}
                     alt="Profile Preview"
+                    className="h-20 w-20 rounded-full object-cover border border-gray-200"
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Reference App Logo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 font-body text-left">
+                Reference App Logo
+              </label>
+              <div className="flex">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleReferenceAppLogoChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-l-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-r-md border border-l-0 border-gray-300"
+                  title="Upload Reference App Logo"
+                >
+                  <Upload size={20} className="text-gray-600" />
+                </button>
+              </div>
+              
+              {/* Reference App Logo Preview - using same circular style as profile picture */}
+              {referenceAppLogoPreview && (
+                <div className="mt-2">
+                  <img 
+                    src={referenceAppLogoPreview}
+                    alt="Reference App Logo Preview"
                     className="h-20 w-20 rounded-full object-cover border border-gray-200"
                   />
                 </div>
@@ -332,10 +403,13 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
                     city: cities.length > 0 ? cities[0].name : '',
                     rating: 5,
                     description: '',
+                    referenceAppName: '',
                     isActive: true
                   });
                   setProfilePicture(null);
                   setProfilePreview('');
+                  setReferenceAppLogo(null);
+                  setReferenceAppLogoPreview('');
                   setEditingId(null);
                   onEditComplete();
                 }}

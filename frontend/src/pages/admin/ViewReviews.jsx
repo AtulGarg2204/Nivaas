@@ -1,4 +1,3 @@
-// frontend/src/pages/admin/ViewReviews.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
@@ -133,7 +132,8 @@ const ViewReviews = ({ onEditReview = () => {} }) => {
   const filteredReviews = sortedReviews.filter(review => {
     const matchesSearch = 
       review.userName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      review.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      review.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      review.referenceApp?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCity = cityFilter === '' || review.city === cityFilter;
     
@@ -271,6 +271,9 @@ const ViewReviews = ({ onEditReview = () => {} }) => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
                     Review
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
+                    Source
+                  </th>
                   <th 
                     onClick={() => handleSort('isActive')}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body cursor-pointer hover:bg-gray-100"
@@ -324,6 +327,25 @@ const ViewReviews = ({ onEditReview = () => {} }) => {
                           </button>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {review.referenceApp?.logo ? (
+                        <div className="flex items-center">
+                          <img 
+                            src={review.referenceApp.logo} 
+                            alt={review.referenceApp.name || "Reference app"} 
+                            className="h-6 w-6 object-contain"
+                            onError={(e) => { e.target.src = "https://via.placeholder.com/24?text=App"; }}
+                          />
+                          {review.referenceApp.name && (
+                            <span className="ml-2 text-sm text-gray-700">{review.referenceApp.name}</span>
+                          )}
+                        </div>
+                      ) : review.referenceApp?.name ? (
+                        <span className="text-sm text-gray-700">{review.referenceApp.name}</span>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button 
@@ -388,21 +410,39 @@ const ViewReviews = ({ onEditReview = () => {} }) => {
               </button>
             </div>
             <div className="p-4 overflow-y-auto">
-              <div className="flex items-center mb-6">
-                <img 
-                  src={modalData.profilePicture} 
-                  alt={modalData.userName}
-                  className="h-16 w-16 rounded-full object-cover border border-gray-200 mr-4"
-                  onError={(e) => { e.target.src = "https://via.placeholder.com/64?text=User"; }}
-                />
-                <div>
-                  <h4 className="text-lg font-bold font-heading">{modalData.userName}</h4>
-                  <p className="text-gray-600 font-body">{modalData.city}</p>
-                  <div className="flex items-center mt-1">
-                    {renderStars(modalData.rating)}
-                    <span className="ml-2 text-gray-700 font-body">{modalData.rating}/5</span>
+              <div className="flex flex-col sm:flex-row sm:items-center mb-6">
+                <div className="flex mb-4 sm:mb-0">
+                  <img 
+                    src={modalData.profilePicture} 
+                    alt={modalData.userName}
+                    className="h-16 w-16 rounded-full object-cover border border-gray-200 mr-4"
+                    onError={(e) => { e.target.src = "https://via.placeholder.com/64?text=User"; }}
+                  />
+                  <div>
+                    <h4 className="text-lg font-bold font-heading">{modalData.userName}</h4>
+                    <p className="text-gray-600 font-body">{modalData.city}</p>
+                    <div className="flex items-center mt-1">
+                      {renderStars(modalData.rating)}
+                      <span className="ml-2 text-gray-700 font-body">{modalData.rating}/5</span>
+                    </div>
                   </div>
                 </div>
+                
+                {(modalData.referenceApp?.logo || modalData.referenceApp?.name) && (
+                  <div className="flex items-center ml-auto bg-gray-50 px-4 py-2 rounded-md">
+                    {modalData.referenceApp?.logo && (
+                      <img 
+                        src={modalData.referenceApp.logo} 
+                        alt={modalData.referenceApp.name || "Reference app"} 
+                        className="h-10 w-10 object-contain mr-2"
+                        onError={(e) => { e.target.src = "https://via.placeholder.com/40?text=App"; }}
+                      />
+                    )}
+                    {modalData.referenceApp?.name && (
+                      <span className="text-gray-700 font-medium">{modalData.referenceApp.name}</span>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div className="bg-gray-50 p-4 rounded-md mb-4">
@@ -456,5 +496,4 @@ const ViewReviews = ({ onEditReview = () => {} }) => {
     </div>
   );
 };
-
 export default ViewReviews;

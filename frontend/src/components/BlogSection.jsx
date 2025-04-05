@@ -2,15 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Sparkles, Compass } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const BlogSection = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [hoverIndex, setHoverIndex] = useState(null);
   const sectionRef = useRef(null);
 
   // Responsive number of blogs to show
@@ -22,17 +20,6 @@ const BlogSection = () => {
   };
 
   const [blogsPerPage, setBlogsPerPage] = useState(getVisibleCount());
-
-  // Update mouse position for gradient following effect
-  const handleMouseMove = (e) => {
-    if (sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      setMousePosition({ 
-        x: e.clientX - rect.left, 
-        y: e.clientY - rect.top 
-      });
-    }
-  };
 
   // Update blogs per page on window resize
   useEffect(() => {
@@ -85,79 +72,49 @@ const BlogSection = () => {
       prev + blogsPerPage < blogs.length ? prev + 1 : prev
     );
   };
-  
-  // Card animation variants
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: i => ({
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
       opacity: 1,
-      y: 0,
       transition: {
-        delay: i * 0.1,
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1]
+        staggerChildren: 0.1
       }
-    }),
-    exit: { opacity: 0, y: -30, transition: { duration: 0.4 } }
-  };
-  
-  // Header animation variants
-  const headerVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { 
-      opacity: 1, 
-      x: 0, 
-      transition: { 
-        duration: 0.5, 
-        ease: "easeOut" 
-      } 
     }
   };
-  
-  // Button hover animation
-  const buttonVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.05, transition: { duration: 0.2 } },
-    tap: { scale: 0.95, transition: { duration: 0.1 } }
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 50, damping: 10 }
+    }
   };
 
   if (loading) {
     return (
-      <div className="py-16 bg-gradient-to-tr from-gray-50 via-blue-50/10 to-purple-50/10 relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-8 lg:px-12">
-          <div className="text-left">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="h-8 w-64 bg-gray-200 rounded-md animate-pulse mb-4"
-            />
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.1 } }}
-              className="h-4 w-full md:w-96 bg-gray-200 rounded-md animate-pulse"
-            />
+      <div className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16">
+          <div className="flex justify-between items-start mb-10">
+            <div className="max-w-lg text-left">
+              <div className="h-8 w-64 bg-gray-200 rounded-md animate-pulse mb-4"></div>
+              <div className="h-4 w-96 bg-gray-200 rounded-md animate-pulse"></div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((item) => (
-              <motion.div 
-                key={item} 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { delay: item * 0.1 }
-                }}
-                className="flex flex-col"
-              >
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full w-full">
-                  <div className="aspect-video bg-gray-200 animate-pulse" />
+              <div key={item} className="flex flex-col">
+                <div className="h-4 w-24 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                <div className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 h-full">
+                  <div className="aspect-[4/3] bg-gray-200 animate-pulse"></div>
                   <div className="p-5 space-y-3">
-                    <div className="h-3 w-16 bg-gray-200 rounded-md animate-pulse" />
-                    <div className="h-5 w-32 bg-gray-200 rounded-md animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded-md animate-pulse" />
+                    <div className="h-3 w-16 bg-gray-200 rounded-md animate-pulse"></div>
+                    <div className="h-5 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+                    <div className="h-12 w-full bg-gray-200 rounded-md animate-pulse"></div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -167,8 +124,8 @@ const BlogSection = () => {
 
   if (error) {
     return (
-      <div className="py-16 bg-gradient-to-tr from-gray-50 via-blue-50/10 to-purple-50/10">
-        <div className="container mx-auto px-4 md:px-8 lg:px-12">
+      <div className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16">
           <div className="text-left text-red-500 font-body p-6 bg-red-50 border border-red-200 rounded-lg shadow-sm">
             <p className="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -193,75 +150,57 @@ const BlogSection = () => {
   return (
     <div 
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      className="py-16 relative overflow-hidden"
-      style={{
-        background: `
-          radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 50%),
-          linear-gradient(to bottom right, #f9fafb, #f3f4f6, #f1f5f9)
-        `
-      }}
+      className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden"
     >
-      {/* Decorative background elements with size constraints */}
-      <div className="absolute top-0 right-0 opacity-30 max-w-full">
-        <svg width="300" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <path fill="rgba(59, 130, 246, 0.1)" d="M41.9,-65.7C55.9,-56.3,69.8,-47.1,77.9,-33.8C86,-20.4,88.1,-3,85.1,13.3C82.1,29.6,74,44.8,61.8,55.5C49.6,66.3,33.3,72.6,16.3,76.7C-0.6,80.9,-18.3,82.8,-32.8,76.9C-47.3,71,-58.7,57.2,-67.8,42.2C-76.9,27.2,-83.8,11,-82.9,-4.9C-82,-20.8,-73.3,-36.3,-61.6,-47.8C-49.9,-59.3,-35.2,-66.7,-21.5,-75.7C-7.9,-84.8,4.7,-95.6,17.2,-92.2C29.7,-88.8,41.9,-71.1,41.9,-65.7Z" transform="translate(100 100)" />
-        </svg>
-      </div>
-      <div className="absolute bottom-0 left-0 opacity-30 max-w-full">
-        <svg width="300" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <path fill="rgba(139, 92, 246, 0.1)" d="M48.2,-75.3C62.4,-67.3,73.9,-53.9,81.6,-38.6C89.4,-23.2,93.3,-5.9,87.9,8.2C82.5,22.3,67.7,33.2,55.1,44.7C42.5,56.3,32.1,68.5,19,72.5C5.9,76.5,-9.8,72.2,-24.4,66.4C-39,60.6,-52.4,53.2,-61.8,41.8C-71.1,30.5,-76.2,15.2,-75.7,0.3C-75.2,-14.7,-69,-29.3,-60.6,-42.8C-52.2,-56.2,-41.6,-68.4,-28.6,-76.9C-15.6,-85.5,-0.3,-90.4,14.4,-88.2C29.1,-85.9,43.3,-76.6,48.2,-75.3Z" transform="translate(100 100)" />
-        </svg>
-      </div>
+      {/* Background decorative elements */}
+      <div className="absolute -top-96 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-1/4 w-full h-96 bg-gradient-to-tr from-yellow-500/5 to-red-500/5 rounded-full blur-3xl transform -translate-x-1/2"></div>
       
-      <div className="container mx-auto px-4 md:px-8 lg:px-12 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-10">
+      <div className="container mx-auto px-8 md:px-12 lg:px-16 relative z-10">
+        <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
           <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={headerVariants}
-            className="text-left mb-6 md:mb-0"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-lg text-left"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-gray-800 drop-shadow-sm text-left">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-gray-800 drop-shadow-sm">
               Blogs
             </h2>
-            <p className="text-gray-600 font-body text-left">
-              Discover breathtaking destinations through our curated travel stories
+            <p className="text-gray-600 font-body">
+              Discover breathtaking destinations through our curated travel stories and luxury experiences.
             </p>
           </motion.div>
-
-          <motion.div
+          
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="flex space-x-3"
           >
-            <motion.button
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
+            <motion.button 
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              className={`p-2 rounded-full shadow-md flex items-center justify-center ${
-                currentIndex === 0
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300"
+              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: 'rgb(37, 99, 235)' } : {}}
+              whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
+              className={`p-2 rounded-full border shadow-sm ${
+                currentIndex === 0 
+                  ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
+                  : 'text-blue-600 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300'
               }`}
               aria-label="Previous"
             >
               <ChevronLeft size={20} />
             </motion.button>
-            <motion.button
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
+            <motion.button 
               onClick={handleNext}
               disabled={currentIndex + blogsPerPage >= blogs.length}
-              className={`p-2 rounded-full shadow-md flex items-center justify-center ${
-                currentIndex + blogsPerPage >= blogs.length
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300"
+              whileHover={currentIndex + blogsPerPage < blogs.length ? { scale: 1.05, backgroundColor: 'rgb(37, 99, 235)' } : {}}
+              whileTap={currentIndex + blogsPerPage < blogs.length ? { scale: 0.95 } : {}}
+              className={`p-2 rounded-full border shadow-sm ${
+                currentIndex + blogsPerPage >= blogs.length 
+                  ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
+                  : 'text-blue-600 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300'
               }`}
               aria-label="Next"
             >
@@ -269,145 +208,92 @@ const BlogSection = () => {
             </motion.button>
           </motion.div>
         </div>
-
-        <AnimatePresence>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {visibleBlogs.map((blog, index) => (
-              <motion.div
-                key={blog._id || index}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                onHoverStart={() => setHoverIndex(index)}
-                onHoverEnd={() => setHoverIndex(null)}
-                layoutId={`blog-${blog._id || index}`}
-                className="flex flex-col w-full"
-              >
-                <Link
-                  to={`/blog/${blog._id}`}
-                  className="group h-full block w-full"
-                >
-                  <div 
-                    className="bg-white rounded-xl overflow-hidden shadow-lg h-full transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.01] w-full"
-                    style={{
-                      background: hoverIndex === index 
-                        ? "linear-gradient(to bottom right, white, #f8fafc, #eff6ff)" 
-                        : "white"
-                    }}
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 mix-blend-multiply opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+        
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {visibleBlogs.map((blog, index) => (
+            <motion.div 
+              key={blog._id || index} 
+              variants={itemVariants}
+              className="flex flex-col"
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            >
+              {/* Date above the card */}
+              <div className="text-left mb-2 pl-1">
+                <span className="text-blue-600 font-bold font-body">
+                  {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric"
+                  }) : ""}
+                </span>
+              </div>
+              
+              <Link to={`/blog/${blog._id}`}>
+                <div className="bg-white rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.1)] border border-gray-100/80 flex flex-col h-full transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
+                  <div className="relative">
+                    <div className="aspect-[4/3] overflow-hidden">
+                      {/* Reflection effect on top */}
+                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/20 to-transparent z-20"></div>
+                      
+                      {/* Gradient overlay on image */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-300"></div>
                       
                       {blog.backgroundImage?.data ? (
-                        <img
-                          src={blog.backgroundImage.data}
-                          alt={blog.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        <img 
+                          src={blog.backgroundImage.data} 
+                          alt={blog.title} 
+                          className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                           <Compass className="w-12 h-12 text-blue-300" />
                         </div>
                       )}
-                      
-                      {/* Shine effect on hover */}
-                      <div 
-                        className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"
-                        style={{ 
-                          transform: "translateX(-100%)",
-                          animation: hoverIndex === index ? "shine 1.5s ease-in-out" : "none"
-                        }}
-                      ></div>
-                      
+                    </div>
+                    <div className="absolute top-3 left-3 z-30">
                       {blog.mustVisitThings && blog.mustVisitThings.length > 0 && (
-                        <div className="absolute top-3 right-3 z-20">
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: index * 0.1 + 0.3 }}
-                          >
-                            <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                              <Sparkles size={12} />
-                              {blog.mustVisitThings.length} Must See
-                            </span>
-                          </motion.div>
-                        </div>
+                        <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs font-bold px-3 py-1 rounded-full font-body shadow-lg shadow-blue-500/20 flex items-center gap-1">
+                          <Sparkles size={12} />
+                          Must Read
+                        </span>
                       )}
                     </div>
-
-                    <div className="p-5 flex-grow flex flex-col text-left">
-                      <div className="text-xs text-gray-500 font-body mb-2">
-                        {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }) : ""}
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2 font-heading text-left">
-                        {blog.title}
-                      </h3>
-                      {blog.description && (
-                        <p className="text-gray-600 text-sm font-body mb-4 line-clamp-2 text-left">
-                          {blog.description}
-                        </p>
-                      )}
-                      <div className="mt-auto">
-                        <div className="inline-flex items-center text-blue-600 text-sm font-medium transition-all duration-300 group-hover:pl-2">
-                          <span className="mr-1">Discover Journey</span>
-                          <motion.div
-                            animate={{ x: hoverIndex === index ? 5 : 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 text-blue-600"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
-                          </motion.div>
-                        </div>
+                  </div>
+                  
+                  <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left">
+                    <div className="text-gray-800 text-lg font-bold font-heading mb-3">
+                      {blog.title || 'Unnamed Blog'}
+                    </div>
+                    <p className="text-gray-600 text-sm font-body line-clamp-3 mb-4">
+                      {blog.description || 'No description available'}
+                    </p>
+                    
+                    <div className="mt-auto">
+                      <div className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors group cursor-pointer">
+                        <span>Read more</span>
+                        <svg className="ml-1 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
                     </div>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </AnimatePresence>
-        
-        {/* Mobile pagination indicator */}
-        <div className="flex justify-center mt-6 md:hidden">
-          <div className="text-sm text-gray-600">
-            {currentIndex + 1} of {Math.min(blogs.length, blogs.length - blogsPerPage + 1)}
-          </div>
-        </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
       
-      {/* Add this keyframe animation for shine effect */}
-      <style jsx>{`
-        @keyframes shine {
-          0% {
-            transform: translateX(-100%) rotate(20deg);
-          }
-          100% {
-            transform: translateX(100%) rotate(20deg);
-          }
-        }
-        
-        .line-clamp-2 {
+      <style jsx="true">{`
+        .line-clamp-3 {
           display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;  
           overflow: hidden;
         }
       `}</style>

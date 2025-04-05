@@ -7,6 +7,15 @@ const BlogSchema = new Schema({
     type: String,
     required: true
   },
+  // Add city field
+  city: {
+    cityId: {
+      type: String
+    },
+    cityName: {
+      type: String
+    }
+  },
   backgroundImage: {
     data: {
       type: String, // Base64 encoded image data
@@ -20,6 +29,11 @@ const BlogSchema = new Schema({
   description: {
     type: String,
     required: true
+  },
+  // CKEditor content field
+  editorContent: {
+    type: String, // Stores HTML from CKEditor
+    default: ''
   },
   // New fields for blog image and its description
   blogImage: {

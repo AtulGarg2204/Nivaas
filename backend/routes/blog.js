@@ -92,7 +92,16 @@ async function getThingsToDo(thingIds) {
 // Create a new blog
 router.post('/', uploadFields, async (req, res) => {
   try {
-    const { title, description, blogImageDescription, isActive } = req.body;
+    const { 
+      title, 
+      description, 
+      blogImageDescription, 
+      isActive, 
+      cityId, 
+      cityName,
+      editorContent  // Add this to handle the CKEditor content
+    } = req.body;
+    
     let thingsToDo = [];
     
     // Parse things to do IDs
@@ -136,6 +145,15 @@ router.post('/', uploadFields, async (req, res) => {
       mustVisitThingsData = await getThingsToDo(thingsToDo);
     }
     
+    // Create city object if cityId is provided
+    let city = null;
+    if (cityId) {
+      city = {
+        cityId: cityId,
+        cityName: cityName || ''
+      };
+    }
+    
     // Create new blog - ensure we're using strings for IDs
     const blog = new Blog({
       title,
@@ -143,6 +161,8 @@ router.post('/', uploadFields, async (req, res) => {
       backgroundImage,
       blogImage,
       blogImageDescription,
+      editorContent,  // Add CKEditor content
+      city, // Add city information
       mustVisitThings: thingsToDo.map(id => id.toString()), // Store as strings
       mustVisitThingsData, // Store full data
       isActive: isActive === 'true' || isActive === true
@@ -162,7 +182,16 @@ router.put('/:id', uploadFields, async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     
-    const { title, description, blogImageDescription, isActive } = req.body;
+    const { 
+      title, 
+      description, 
+      blogImageDescription, 
+      isActive, 
+      cityId, 
+      cityName,
+      editorContent  // Add this to handle the CKEditor content
+    } = req.body;
+    
     let thingsToDo = [];
     
     // Parse things to do IDs
@@ -179,6 +208,20 @@ router.put('/:id', uploadFields, async (req, res) => {
     if (description) blog.description = description;
     if (blogImageDescription) blog.blogImageDescription = blogImageDescription;
     if (isActive !== undefined) blog.isActive = isActive === 'true' || isActive === true;
+    
+    // Update CKEditor content
+    if (editorContent !== undefined) blog.editorContent = editorContent;
+    
+    // Update city information
+    if (cityId) {
+      blog.city = {
+        cityId: cityId,
+        cityName: cityName || ''
+      };
+    } else {
+      // If cityId is not provided, clear city information
+      blog.city = null;
+    }
     
     // Update background image if provided
     if (req.files && req.files.backgroundImage) {

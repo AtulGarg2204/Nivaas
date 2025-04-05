@@ -5,20 +5,67 @@ import LocationPicker from '../components/LocationPicker';
 import PropertiesSection from '../components/PropertiesSection';
 import FeaturesSection from '../components/FeaturesSection';
 import ReviewsSection from '../components/ReviewsSection';
-import UnexploredSection from '../components/UnexploredSection';
-import BlogsSection from '../components/BlogSection'; // Fixed import from BlogSection to BlogsSection
+import BlogsSection from '../components/BlogSection';
+import Footer from '../components/Footer';
 
 const HomePage = () => {
-  const [banners, setBanners] = useState([]);
+  const [desktopBanners, setDesktopBanners] = useState([]);
+  const [mobileBanners, setMobileBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState('100vh');
+
+  // Function to check if device is mobile and set viewport height
+  const handleResize = () => {
+    const isMobileView = window.innerWidth < 768;
+    setIsMobile(isMobileView);
+    
+    // Update viewport height
+    if (isMobileView) {
+      // For mobile, allow scrolling
+      setViewportHeight('calc(100vh - 64px)'); // Adjust height to account for mobile UI elements
+    } else {
+      // For desktop, use exact viewport height to ensure banner fills screen
+      setViewportHeight('100vh');
+    }
+  };
+
+  useEffect(() => {
+    // Set initial state based on window size
+    handleResize();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/banners`);
-        const activeBanners = res.data.filter(banner => banner.isActive);
-        setBanners(activeBanners);
+        setLoading(true);
+        
+        // Fetch both desktop and mobile banners simultaneously
+        const [desktopRes, mobileRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/api/banners/type/desktop`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/banners/type/mobile`)
+        ]);
+        
+        // Filter banners that are active and sort by order
+        const activeDesktopBanners = desktopRes.data
+          .filter(banner => banner.isActive)
+          .sort((a, b) => a.order - b.order);
+          
+        const activeMobileBanners = mobileRes.data
+          .filter(banner => banner.isActive)
+          .sort((a, b) => a.order - b.order);
+        
+        setDesktopBanners(activeDesktopBanners);
+        setMobileBanners(activeMobileBanners);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching banners:', error);
@@ -29,18 +76,29 @@ const HomePage = () => {
     fetchBanners();
   }, []);
 
+  // Reset current banner index when switching between mobile and desktop
   useEffect(() => {
-    if (banners.length > 1) {
+    setCurrentBanner(0);
+  }, [isMobile]);
+
+  // Setup banner rotation interval
+  useEffect(() => {
+    const activeBanners = isMobile ? mobileBanners : desktopBanners;
+    
+    if (activeBanners.length > 1) {
       const interval = setInterval(() => {
-        setCurrentBanner(prev => (prev + 1) % banners.length);
+        setCurrentBanner(prev => (prev + 1) % activeBanners.length);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [banners]);
+  }, [isMobile, mobileBanners, desktopBanners]);
 
   const goToBanner = (index) => {
     setCurrentBanner(index);
   };
+
+  // Get the appropriate banners based on device type
+  const banners = isMobile ? mobileBanners : desktopBanners;
 
   return (
     <div className="min-h-screen">
@@ -48,8 +106,11 @@ const HomePage = () => {
         <div className="flex justify-center items-center h-screen">
           <p className="font-body">Loading...</p>
         </div>
-      ) : banners.length > 0 ? (
-        <div className="relative min-h-screen">
+      ) : banners.length >.0 ? (
+        <div 
+          className="relative" 
+          style={{ height: viewportHeight }}
+        >
           {banners.map((banner, index) => (
             <div
               key={banner._id}
@@ -95,22 +156,22 @@ const HomePage = () => {
       )}
       
       {/* Location Picker Section */}
-      <LocationPicker />
-      
-      {/* Properties Section */}
-      <PropertiesSection />
-      
-      {/* Features Section */}
-      <FeaturesSection />
-      
-      {/* Reviews Section */}
-      <ReviewsSection />
-      
-      {/* Unexplored Section */}
-      <UnexploredSection />
-      
-      {/* Blogs Section */}
-      <BlogsSection />
+      <div className="bg-white">
+        <LocationPicker />
+        
+        {/* Properties Section */}
+        <PropertiesSection />
+        
+        {/* Features Section */}
+        <FeaturesSection />
+        
+        {/* Reviews Section */}
+        <ReviewsSection />
+        
+        {/* Blogs Section */}
+        <BlogsSection />
+        <Footer/>
+      </div>
     </div>
   );
 };
