@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
+const Property = require('../models/Property'); // Add this to fetch property info
 const multer = require('multer');
 
 // Configure multer to store files in memory
@@ -40,10 +41,23 @@ router.get('/city/:cityId', async (req, res) => {
   }
 });
 
+// Get reviews by property
+router.get('/property/:propertyId', async (req, res) => {
+  try {
+    const reviews = await Review.find({ 
+      propertyId: req.params.propertyId,
+      isActive: true
+    }).sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Create a new review
 router.post('/', uploadFields, async (req, res) => {
   try {
-    const { userName, cityId, city, rating, description, referenceAppName } = req.body;
+    const { userName, cityId, city, propertyId, rating, description, referenceAppName, propertyName } = req.body;
     
     // Process uploaded profile picture to base64
     let profilePicture = '';
@@ -51,6 +65,9 @@ router.post('/', uploadFields, async (req, res) => {
       const file = req.files.profilePicture[0];
       const base64Image = file.buffer.toString('base64');
       profilePicture = `data:${file.mimetype};base64,${base64Image}`;
+    } else {
+      // Set a default profile picture - commented out since we're using initials now
+      // profilePicture = 'data:image/png;base64,...';
     }
     
     // Process uploaded reference app logo to base64
@@ -61,10 +78,25 @@ router.post('/', uploadFields, async (req, res) => {
       referenceAppLogo = `data:${file.mimetype};base64,${base64Image}`;
     }
     
+    // If propertyName wasn't provided but propertyId was, try to fetch the property name
+    let actualPropertyName = propertyName || '';
+    if (propertyId && !propertyName) {
+      try {
+        const property = await Property.findById(propertyId);
+        if (property) {
+          actualPropertyName = property.name;
+        }
+      } catch (err) {
+        console.error('Error fetching property name:', err);
+      }
+    }
+    
     const review = new Review({
       userName,
       cityId,
       city,
+      propertyId,
+      propertyName: actualPropertyName,
       rating: parseInt(rating),
       description,
       profilePicture,
@@ -89,7 +121,7 @@ router.put('/:id', uploadFields, async (req, res) => {
     if (!review) return res.status(404).json({ message: 'Review not found' });
     
     // Update text fields
-    const fields = ['userName', 'cityId', 'city', 'rating', 'description', 'isActive'];
+    const fields = ['userName', 'cityId', 'city', 'propertyId', 'propertyName', 'rating', 'description', 'isActive'];
     fields.forEach(field => {
       if (req.body[field] !== undefined) {
         if (field === 'rating') {
@@ -101,6 +133,18 @@ router.put('/:id', uploadFields, async (req, res) => {
         }
       }
     });
+    
+    // If propertyId changed but propertyName wasn't provided, try to fetch the property name
+    if (req.body.propertyId && !req.body.propertyName) {
+      try {
+        const property = await Property.findById(req.body.propertyId);
+        if (property) {
+          review.propertyName = property.name;
+        }
+      } catch (err) {
+        console.error('Error fetching property name:', err);
+      }
+    }
     
     // Update reference app name if provided
     if (req.body.referenceAppName !== undefined) {

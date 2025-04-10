@@ -15,6 +15,15 @@ const ReviewSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  propertyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+    // Not required to maintain backward compatibility
+  },
+  propertyName: {
+    type: String,
+    default: '' // Store the property name for easy access
+  },
   rating: {
     type: Number,
     required: true,
@@ -27,7 +36,7 @@ const ReviewSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String, // Base64 encoded image
-    required: true
+    default: '' // No longer required
   },
   referenceApp: {
     name: {
@@ -49,4 +58,4 @@ const ReviewSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Review', ReviewSchema); 
+module.exports = mongoose.model('Review', ReviewSchema);
