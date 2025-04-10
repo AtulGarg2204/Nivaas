@@ -23,8 +23,8 @@ const HomePage = () => {
     
     // Update viewport height
     if (isMobileView) {
-      // For mobile, allow scrolling
-      setViewportHeight('calc(100vh - 64px)'); // Adjust height to account for mobile UI elements
+      // For mobile, adjust to approx half the viewport height
+      setViewportHeight('50vh'); // Half height for mobile so location picker is visible
     } else {
       // For desktop, use exact viewport height to ensure banner fills screen
       setViewportHeight('100vh');
@@ -106,9 +106,9 @@ const HomePage = () => {
         <div className="flex justify-center items-center h-screen">
           <p className="font-body">Loading...</p>
         </div>
-      ) : banners.length >.0 ? (
+      ) : banners.length > 0 ? (
         <div 
-          className="relative" 
+          className="relative w-full" 
           style={{ height: viewportHeight }}
         >
           {banners.map((banner, index) => (
@@ -124,9 +124,13 @@ const HomePage = () => {
               >
                 <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                   <div className="text-center text-white p-4">
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold mb-4">{banner.title}</h1>
+                    <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'} font-heading font-bold mb-2 md:mb-4`}>
+                      {banner.title}
+                    </h1>
                     {banner.subtitle && (
-                      <p className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-body">{banner.subtitle}</p>
+                      <p className={`${isMobile ? 'text-lg' : 'text-xl sm:text-xl md:text-2xl lg:text-3xl'} font-body`}>
+                        {banner.subtitle}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -136,7 +140,7 @@ const HomePage = () => {
           
           {/* Banner navigation dots */}
           {banners.length > 1 && (
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+            <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center">
               {banners.map((_, index) => (
                 <button
                   key={index}
@@ -155,23 +159,29 @@ const HomePage = () => {
         </div>
       )}
       
-      {/* Location Picker Section */}
+     
       <div className="bg-white">
-        <LocationPicker />
-        
-        {/* Properties Section */}
-        <PropertiesSection />
-        
-        {/* Features Section */}
-        <FeaturesSection />
-        
-        {/* Reviews Section */}
-        <ReviewsSection />
-        
-        {/* Blogs Section */}
-        <BlogsSection />
-        <Footer/>
-      </div>
+  {/* Content sections with margins on mobile */}
+  <div className={isMobile ? 'px-4' : ''}>
+    {/* Location Picker Section */}
+    <LocationPicker />
+    
+    {/* Properties Section */}
+    <PropertiesSection />
+    
+    {/* Features Section */}
+    <FeaturesSection />
+    
+    {/* Reviews Section */}
+    <ReviewsSection />
+    
+    {/* Blogs Section */}
+    <BlogsSection />
+  </div>
+  
+  {/* Footer without additional side margins */}
+  <Footer />
+</div>
     </div>
   );
 };

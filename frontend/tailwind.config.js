@@ -6,8 +6,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'heading': ['"DM Serif Display"', 'serif'],
-        'body': ['"DM Sans"', 'sans-serif'],
+        'heading': ['Cinzel', '"Palatino Linotype"', 'serif'],
+        'subheading': ['Inter', 'sans-serif'],
+        'body': ['Inter', 'sans-serif'],
         'poppins': ['Poppins', '"Poppins Fallback"', 'sans-serif'], // Kept for backward compatibility
       },
     },
