@@ -30,7 +30,7 @@ const ReviewSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String, // Base64 encoded image data
-    required: true
+
   },
   rating: {
     type: Number,
@@ -41,6 +41,12 @@ const ReviewSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true
+  },
+  // Added source field for review platforms
+  source: {
+    type: String,
+    enum: ['airbnb', 'makemytrip', 'goibibo', 'google', 'direct'],
+    default: 'direct'
   },
   isActive: {
     type: Boolean,
@@ -76,6 +82,10 @@ const PropertySchema = new mongoose.Schema({
   city: {
     type: String,
     required: true
+  },
+  subplace: {
+    type: String,
+    default: ''
   },
   guests: {
     type: Number,

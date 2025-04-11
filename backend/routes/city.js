@@ -158,6 +158,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       name: req.body.name,
       image: imageData,
       isActive: req.body.isActive === 'true' || req.body.isActive === true,
+      showOnHome: req.body.showOnHome === 'true' || req.body.showOnHome === true,
       thingsToDo: thingsToDo
     });
 
@@ -194,6 +195,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     city.name = req.body.name || city.name;
     city.image = imageData;
     city.isActive = req.body.isActive === 'true' || req.body.isActive === true;
+    city.showOnHome = req.body.showOnHome === 'true' || req.body.showOnHome === true;
     city.thingsToDo = thingsToDo;
     
     const updatedCity = await city.save();

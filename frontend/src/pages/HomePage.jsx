@@ -24,7 +24,7 @@ const HomePage = () => {
     // Update viewport height
     if (isMobileView) {
       // For mobile, adjust to approx half the viewport height
-      setViewportHeight('50vh'); // Half height for mobile so location picker is visible
+      setViewportHeight('70vh'); // Half height for mobile so location picker is visible
     } else {
       // For desktop, use exact viewport height to ensure banner fills screen
       setViewportHeight('100vh');

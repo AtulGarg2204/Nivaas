@@ -89,7 +89,7 @@ const ReviewsSection = () => {
                 e.stopPropagation();
                 toggleExpanded(id);
               }}
-              className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+              className="mt-2 text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] text-sm font-medium flex items-center"
             >
               Read more <ChevronDown size={16} className="ml-1" />
             </button>
@@ -107,7 +107,7 @@ const ReviewsSection = () => {
             e.stopPropagation();
             toggleExpanded(id);
           }}
-          className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+          className="mt-2 text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] text-sm font-medium flex items-center"
         >
           Show less <ChevronUp size={16} className="ml-1" />
         </button>
@@ -146,9 +146,9 @@ const ReviewsSection = () => {
       
       // Generate a consistent background color based on the initial
       const colors = [
-        "bg-blue-500", "bg-indigo-500", "bg-purple-500", 
-        "bg-pink-500", "bg-red-500", "bg-orange-500", 
-        "bg-yellow-500", "bg-green-500", "bg-teal-500"
+        "bg-[rgba(14,63,68,0.95)]", "bg-[#a0936a]", "bg-gray-700", 
+        "bg-[rgba(14,63,68,0.8)]", "bg-[#a0936a]", "bg-gray-600", 
+        "bg-[rgba(14,63,68,0.7)]", "bg-[#a0936a]", "bg-gray-500"
       ];
       const colorIndex = initial.charCodeAt(0) % colors.length;
       const bgColor = colors[colorIndex];
@@ -250,16 +250,16 @@ const ReviewsSection = () => {
       ref={sectionRef}
       className="py-16 relative overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #e4ecfb 100%)"
+        background: "linear-gradient(135deg, #f5f7fa 0%, #f0f0f0 100%)"
       }}
     >
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-200/30 blur-2xl"></div>
-        <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-indigo-200/30 blur-3xl"></div>
-        <div className="absolute -bottom-32 right-1/3 w-72 h-72 rounded-full bg-purple-200/20 blur-3xl"></div>
+        <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-gray-300/30 blur-2xl"></div>
+        <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-gray-300/30 blur-3xl"></div>
+        <div className="absolute -bottom-32 right-1/3 w-72 h-72 rounded-full bg-gray-300/20 blur-3xl"></div>
         <div className="absolute top-1/4 right-1/4">
-          <Quote size={120} className="text-blue-100/40 transform rotate-12" />
+          <Quote size={120} className="text-gray-200/40 transform rotate-12" />
         </div>
       </div>
       
@@ -269,11 +269,11 @@ const ReviewsSection = () => {
             initial="hidden"
             animate="visible"
             variants={headerVariants}
-            className="text-left"
+            className="text-left px-4"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-800 text-left">
-                Happy Guest <span className="text-blue-600">Stories</span>
+                Happy Guest <span className="text-[#a0936a]">Stories</span>
               </h2>
               
               <motion.div 
@@ -284,12 +284,12 @@ const ReviewsSection = () => {
                 <motion.button 
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}
-                  whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+                  whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md ${
                     currentIndex === 0 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Previous"
                 >
@@ -298,12 +298,12 @@ const ReviewsSection = () => {
                 <motion.button 
                   onClick={handleNext}
                   disabled={currentIndex + visibleReviews >= reviews.length}
-                  whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+                  whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={currentIndex + visibleReviews < reviews.length ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md ${
                     currentIndex + visibleReviews >= reviews.length 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Next"
                 >
@@ -311,8 +311,8 @@ const ReviewsSection = () => {
                 </motion.button>
               </motion.div>
             </div>
-            <p className="text-gray-600 font-body text-left mt-2">
-              See why NIVAAS is the preferred choice for luxury stays
+            <p className="text-gray-600 font-body text-left mt-2 pl-0.5">
+              See why NIVAAS is the preferred choice for luxury <span className="text-[#a0936a]">stays</span>
             </p>
           </motion.div>
           
@@ -324,12 +324,12 @@ const ReviewsSection = () => {
             <motion.button 
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md ${
                 currentIndex === 0 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Previous"
             >
@@ -338,12 +338,12 @@ const ReviewsSection = () => {
             <motion.button 
               onClick={handleNext}
               disabled={currentIndex + visibleReviews >= reviews.length}
-              whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+              whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={currentIndex + visibleReviews < reviews.length ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md ${
                 currentIndex + visibleReviews >= reviews.length 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Next"
             >
@@ -356,7 +356,7 @@ const ReviewsSection = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="review-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="review-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4"
           style={{ 
             alignItems: 'stretch' // Ensure cards stretch to equal height
           }}
@@ -385,7 +385,7 @@ const ReviewsSection = () => {
                   }}
                 >
                   {/* Decorative quote element */}
-                  <div className="absolute -top-2 -right-2 text-blue-100 transform rotate-12">
+                  <div className="absolute -top-2 -right-2 text-gray-200 transform rotate-12">
                     <Quote size={40} />
                   </div>
                   

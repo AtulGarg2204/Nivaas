@@ -1,7 +1,6 @@
-// frontend/src/pages/admin/ViewCities.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, Edit, Trash2, Search, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, Edit, Trash2, Search, RefreshCw, CheckCircle, XCircle, Home } from 'lucide-react';
 
 const ViewCities = ({ onEditCity }) => {
   const [cities, setCities] = useState([]);
@@ -158,6 +157,17 @@ const ViewCities = ({ onEditCity }) => {
                       )}
                     </div>
                   </th>
+                  <th 
+                    onClick={() => handleSort('showOnHome')}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body cursor-pointer hover:bg-gray-100"
+                  >
+                    <div className="flex items-center gap-1">
+                      Home Page
+                      {sortConfig.key === 'showOnHome' && (
+                        <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
+                      )}
+                    </div>
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
                     Actions
                   </th>
@@ -202,6 +212,19 @@ const ViewCities = ({ onEditCity }) => {
                           )}
                         </span>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium font-body ${
+                          city.showOnHome 
+                            ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {city.showOnHome ? (
+                            <><Home size={14} className="mr-1" /> Show</>
+                          ) : (
+                            <><XCircle size={14} className="mr-1" /> Hidden</>
+                          )}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
                           <button
@@ -223,7 +246,7 @@ const ViewCities = ({ onEditCity }) => {
                     </tr>
                     {expandedCity === city._id && city.thingsToDo && city.thingsToDo.length > 0 && (
                       <tr className="bg-gray-50">
-                        <td colSpan="5" className="px-6 py-4">
+                        <td colSpan="6" className="px-6 py-4">
                           <div className="text-sm font-bold mb-2 font-heading">Things to Do in {city.name}</div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {city.thingsToDo.map((thing, index) => (

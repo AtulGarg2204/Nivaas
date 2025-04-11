@@ -11,10 +11,12 @@ import BlogDetail from './pages/BlogDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import CityProperties from './pages/CityProperties';
 import './App.css';
-
+import WhatsAppButton from './components/WhatsappButton';
 function App() {
   return (
     <Router>
+     {/* WhatsApp button will appear on all pages */}
+     <WhatsAppButton />
       <div className="App">
         <Navbar />
         <Routes>

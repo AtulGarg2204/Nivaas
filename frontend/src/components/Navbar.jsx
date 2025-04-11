@@ -1,18 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import logo from '../assets/logo_nivaas.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [cities, setCities] = useState([]);
+  const [cityProperties, setCityProperties] = useState({});
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [hoveredCity, setHoveredCity] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
   const location = useLocation();
+  const navigate = useNavigate();
+  const staysRef = useRef(null);
+  const cityDropdownRef = useRef(null);
+  const propertyDropdownRef = useRef(null);
   
   // Check if we're on a page that should have transparent navbar initially
   const isCityPage = location.pathname.startsWith('/city/');
   const isHomePage = location.pathname === '/';
   const hasTransparentHeader = isHomePage || isCityPage;
+
+  // Fetch cities and properties
+  useEffect(() => {
+    const fetchCitiesAndProperties = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch cities first
+        const citiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/cities`);
+        const activeCities = citiesRes.data.filter(city => city.isActive && city.showOnHome);
+        setCities(activeCities);
+        
+        // Fetch all properties
+        const propertiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/properties`);
+        
+        // Organize properties by city
+        const propertiesByCity = {};
+        activeCities.forEach(city => {
+          const cityProperties = propertiesRes.data.filter(
+            property => property.cityId === city._id && 
+                       (property.isActive === undefined || property.isActive === true)
+          );
+          propertiesByCity[city._id] = cityProperties;
+        });
+        
+        setCityProperties(propertiesByCity);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchCitiesAndProperties();
+  }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        cityDropdownRef.current && 
+        !cityDropdownRef.current.contains(event.target) &&
+        staysRef.current &&
+        !staysRef.current.contains(event.target) &&
+        (!propertyDropdownRef.current || !propertyDropdownRef.current.contains(event.target))
+      ) {
+        setShowCityDropdown(false);
+        setHoveredCity(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Track scrolling to change navbar background
   useEffect(() => {
@@ -35,11 +102,33 @@ const Navbar = () => {
     };
   }, []);
 
+  // Scroll to blogs section
+  const scrollToBlogs = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Wait for navigation to complete before scrolling
+      setTimeout(() => {
+        const blogsSection = document.querySelector('[ref="sectionRef"]') || document.getElementById('blogs-section');
+        if (blogsSection) {
+          blogsSection.scrollIntoView({ behavior: 'smooth' });
+        } 
+      }, 300); // Increased timeout to ensure the page loads
+    } else {
+      // Try to find the blogs section by multiple selectors
+      const blogsSection = document.querySelector('[ref="sectionRef"]') || 
+                           document.querySelector('.py-16.bg-gradient-to-b') || 
+                           document.getElementById('blogs-section');
+      if (blogsSection) {
+        blogsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   // Interpolate colors based on scroll position
   const interpolateColor = (scrollProgress) => {
     // Initial state: transparent
     // Final state: #0e3f44 with opacity
-    return scrolled || isOpen || !hasTransparentHeader
+    return scrolled || isOpen || !hasTransparentHeader || showCityDropdown
       ? 'rgba(14, 63, 68, 0.95)' // The requested #0e3f44 color with opacity
       : 'transparent';
   };
@@ -47,8 +136,8 @@ const Navbar = () => {
   // Dynamic styles
   const navbarStyle = {
     backgroundColor: interpolateColor(scrollProgress),
-    boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.15)' : 'none',
-    backdropFilter: scrolled ? 'blur(8px)' : 'none',
+    boxShadow: scrolled || showCityDropdown ? '0 4px 20px rgba(0, 0, 0, 0.15)' : 'none',
+    backdropFilter: scrolled || showCityDropdown ? 'blur(8px)' : 'none',
   };
 
   // Link hover effect variants
@@ -79,13 +168,33 @@ const Navbar = () => {
     }
   };
 
+  // Dropdown animation variants
+  const dropdownVariants = {
+    hidden: { 
+      opacity: 0,
+      y: -10,
+      scale: 0.95,
+      transition: {
+        duration: 0.2
+      }
+    },
+    visible: { 
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
   return (
-    <nav 
-      className="w-full fixed top-0 z-50 transition-all duration-300"
+          <nav 
+      className="w-full fixed top-0 z-[1000] transition-all duration-300"
       style={navbarStyle}
     >
       {/* Highlight line at the bottom of navbar when scrolled */}
-      {scrolled && (
+      {(scrolled || showCityDropdown) && (
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-400 via-teal-300 to-cyan-400"></div>
       )}
       
@@ -109,26 +218,143 @@ const Navbar = () => {
         
         {/* Desktop Navigation items */}
         <div className="flex items-center space-x-10">
-          <motion.div
-            variants={linkVariants}
-            initial="initial"
-            whileHover="hover"
+          {/* Stays dropdown */}
+          <div 
+            className="relative" 
+            onMouseEnter={() => setShowCityDropdown(true)}
+            onMouseLeave={() => {
+              if (!hoveredCity) {
+                setShowCityDropdown(false);
+              }
+            }}
+            ref={staysRef}
           >
-            <Link to="/stays" className="text-white text-base font-body relative group">
-              Stays
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-cyan-300 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-          </motion.div>
+            <motion.div
+              variants={linkVariants}
+              initial="initial"
+              whileHover="hover"
+              className="cursor-pointer"
+            >
+              <div className="text-white text-base font-body relative group flex items-center">
+                Stays
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className={`h-4 w-4 ml-1 transition-transform duration-300 ${showCityDropdown ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-cyan-300 group-hover:w-full transition-all duration-300"></span>
+              </div>
+            </motion.div>
+            
+            {/* City Dropdown */}
+            <AnimatePresence>
+              {showCityDropdown && (
+                <motion.div 
+                  className="fixed left-auto mt-2 bg-white rounded-lg shadow-xl py-2 min-w-[200px] z-50"
+                  style={{ 
+                    top: "auto", 
+                    maxHeight: "80vh", 
+                    overflow: "visible" 
+                  }}
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  ref={cityDropdownRef}
+                >
+                  {loading ? (
+                    <div className="px-4 py-2 text-gray-600">Loading...</div>
+                  ) : cities.length > 0 ? (
+                    cities.map(city => (
+                      <div 
+                        key={city._id}
+                        className="relative"
+                        onMouseEnter={() => setHoveredCity(city._id)}
+                        onMouseLeave={() => {
+                          // Small delay to allow mouse to move to property dropdown
+                          setTimeout(() => {
+                            if (!propertyDropdownRef.current?.contains(document.activeElement)) {
+                              setHoveredCity(null);
+                            }
+                          }, 100);
+                        }}
+                      >
+                        <Link 
+                          to={`/city/${city._id}`}
+                          className=" px-4 py-2 text-gray-800 hover:bg-gray-100 flex justify-between items-center"
+                          onClick={() => {
+                            setShowCityDropdown(false);
+                            setHoveredCity(null);
+                          }}
+                        >
+                          <span>{city.name}</span>
+                          {cityProperties[city._id]?.length > 0 && (
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              className="h-4 w-4" 
+                              fill="none" 
+                              viewBox="0 0 24 24" 
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          )}
+                        </Link>
+                        
+                        {/* Properties Dropdown */}
+                        <AnimatePresence>
+                          {hoveredCity === city._id && cityProperties[city._id]?.length > 0 && (
+                            <motion.div 
+                              className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-xl py-2 min-w-[220px] z-50 max-h-[60vh] overflow-y-auto"
+                              variants={dropdownVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit="hidden"
+                              ref={propertyDropdownRef}
+                            >
+                              {cityProperties[city._id].map(property => (
+                                <Link 
+                                  key={property._id}
+                                  to={`/property/${property._id}`}
+                                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 truncate max-w-[220px]"
+                                  onClick={() => {
+                                    setShowCityDropdown(false);
+                                    setHoveredCity(null);
+                                  }}
+                                >
+                                  {property.name}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-gray-600">No cities available</div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           
+          {/* Blogs - changed from About Us */}
           <motion.div
             variants={linkVariants}
             initial="initial"
             whileHover="hover"
           >
-            <Link to="/about" className="text-white text-base font-body relative group">
-              About Us
+            <button 
+              onClick={scrollToBlogs}
+              className="text-white text-base font-body relative group"
+            >
+              Blogs
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-cyan-300 group-hover:w-full transition-all duration-300"></span>
-            </Link>
+            </button>
           </motion.div>
           
           <motion.div
@@ -187,7 +413,7 @@ const Navbar = () => {
           </motion.button>
         </div>
         
-        {/* Mobile Menu - Vertical and Left Aligned */}
+        {/* Mobile Menu - Vertical and Left Aligned with nested dropdowns */}
         <motion.div 
           className="overflow-hidden bg-[#0e3f44]/95 backdrop-blur-md"
           initial={{ height: 0, opacity: 0 }}
@@ -202,21 +428,102 @@ const Navbar = () => {
         >
           {isOpen && (
             <div className="container mx-auto px-6 py-5 flex flex-col text-left space-y-5">
-              <Link 
-                to="/stays" 
-                className="text-white text-base font-body block"
-                onClick={() => setIsOpen(false)}
-              >
-                Stays
-              </Link>
+              {/* Mobile Stays Dropdown */}
+              <div>
+                <div 
+                  className="flex justify-between items-center text-white text-base font-body"
+                  onClick={() => setShowCityDropdown(!showCityDropdown)}
+                >
+                  <span>Stays</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className={`h-5 w-5 ml-1 transition-transform duration-300 ${showCityDropdown ? 'rotate-180' : ''}`}
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                
+                {/* Mobile Cities Dropdown */}
+                <AnimatePresence>
+                  {showCityDropdown && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-2 ml-4 space-y-2">
+                        {loading ? (
+                          <div className="text-gray-300 text-sm">Loading...</div>
+                        ) : cities.length > 0 ? (
+                          cities.map(city => (
+                            <div key={city._id}>
+                              <Link 
+                                to={`/city/${city._id}`}
+                                className="block text-white text-sm font-body pl-2 py-1 border-l-2 border-cyan-300"
+                                onClick={() => {
+                                  setIsOpen(false);
+                                  setShowCityDropdown(false);
+                                }}
+                              >
+                                {city.name}
+                              </Link>
+                              
+                              {/* Show top 3 properties for each city on mobile */}
+                              {cityProperties[city._id]?.length > 0 && (
+                                <div className="mt-1 ml-4">
+                                  {cityProperties[city._id].slice(0, 3).map(property => (
+                                    <Link
+                                      key={property._id}
+                                      to={`/property/${property._id}`}
+                                      className="block text-gray-300 text-xs font-body pl-2 py-1 border-l border-gray-600"
+                                      onClick={() => {
+                                        setIsOpen(false);
+                                        setShowCityDropdown(false);
+                                      }}
+                                    >
+                                      {property.name}
+                                    </Link>
+                                  ))}
+                                  {cityProperties[city._id].length > 3 && (
+                                    <Link
+                                      to={`/city/${city._id}`}
+                                      className="block text-cyan-300 text-xs font-body pl-2 py-1 border-l border-gray-600 italic"
+                                      onClick={() => {
+                                        setIsOpen(false);
+                                        setShowCityDropdown(false);
+                                      }}
+                                    >
+                                      + {cityProperties[city._id].length - 3} more...
+                                    </Link>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-gray-300 text-sm">No cities available</div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               
-              <Link 
-                to="/about" 
-                className="text-white text-base font-body block"
-                onClick={() => setIsOpen(false)}
+              {/* Blogs Link - changed from About Us */}
+              <button
+                onClick={() => {
+                  scrollToBlogs();
+                  setIsOpen(false);
+                }}
+                className="text-white text-base font-body text-left"
               >
-                About Us
-              </Link>
+                Blogs
+              </button>
               
               <a 
                 href="tel:+917969469950" 

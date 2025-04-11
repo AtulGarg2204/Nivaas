@@ -29,6 +29,10 @@ const CitySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  showOnHome: {  // Add this new field
+    type: Boolean,
+    default: false
+  },
   thingsToDo: [ThingToDoSchema],
   createdAt: {
     type: Date,

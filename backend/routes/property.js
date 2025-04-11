@@ -42,7 +42,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', upload.array('images', 10), async (req, res) => {
   try {
     const { 
-      name, cityId, city, guests, rooms, baths, beds,
+      name, cityId, city, subplace, guests, rooms, baths, beds,
       description, price, brochureLink, video, mapLink
     } = req.body;
     
@@ -68,6 +68,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       name,
       cityId,
       city,
+      subplace,
       guests: parseInt(guests),
       rooms: parseInt(rooms),
       baths: parseInt(baths),
@@ -77,7 +78,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       brochureLink,
       video,
       mapLink,
-      amenities, // Dynamic amenities are now stored directly
+      amenities,
       images,
       reviews: []
     });
@@ -98,7 +99,7 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
     
     // Update text fields
     const fields = [
-      'name', 'cityId', 'city', 'guests', 'rooms', 'baths', 'beds',
+      'name', 'cityId', 'city', 'subplace', 'guests', 'rooms', 'baths', 'beds',
       'description', 'price', 'brochureLink', 'video', 'mapLink', 'isActive'
     ];
     
@@ -175,12 +176,13 @@ router.post('/:id/reviews', upload.single('profilePicture'), async (req, res) =>
       profilePictureData = bufferToDataUrl(req.file.buffer, req.file.mimetype);
     }
     
-    // Create new review
+    // Create new review with source field
     const newReview = {
       userName: req.body.userName,
       profilePicture: profilePictureData,
       rating: parseInt(req.body.rating),
       description: req.body.description,
+      source: req.body.source || 'direct', // Set review source with default to 'direct'
       isActive: req.body.isActive === 'true' || req.body.isActive === true
     };
     
@@ -220,6 +222,7 @@ router.put('/:id/reviews/:reviewId', upload.single('profilePicture'), async (req
     if (req.body.userName) property.reviews[reviewIndex].userName = req.body.userName;
     if (req.body.rating) property.reviews[reviewIndex].rating = parseInt(req.body.rating);
     if (req.body.description) property.reviews[reviewIndex].description = req.body.description;
+    if (req.body.source) property.reviews[reviewIndex].source = req.body.source; // Update source field
     if (req.body.isActive !== undefined) {
       property.reviews[reviewIndex].isActive = req.body.isActive === 'true' || req.body.isActive === true;
     }

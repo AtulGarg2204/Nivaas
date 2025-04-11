@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LocationPicker = () => {
@@ -91,13 +91,13 @@ const LocationPicker = () => {
   // Loading state with animation
   if (loading) {
     return (
-      <div className="py-12 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <div className="text-left">
+      <div className="py-16 bg-white border-b border-gray-100">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-left px-4">
             <div className="h-8 w-64 bg-gray-200 rounded-md animate-pulse mb-4"></div>
             <div className="h-4 w-48 bg-gray-200 rounded-md animate-pulse"></div>
           </div>
-          <div className="mt-8 flex gap-4">
+          <div className="mt-8 flex gap-4 px-4">
             {[1, 2, 3].map((item) => (
               <div key={item} className="flex-1">
                 <div className="h-48 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -111,9 +111,9 @@ const LocationPicker = () => {
 
   if (error) {
     return (
-      <div className="py-12 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <div className="text-left text-red-500 font-body p-6 bg-red-50 rounded-lg shadow-sm">
+      <div className="py-16 bg-white border-b border-gray-100">
+        <div className="container mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-left text-red-500 font-body p-6 bg-red-50 rounded-lg shadow-sm px-4">
             <p className="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -153,10 +153,70 @@ const LocationPicker = () => {
     }
   };
 
+  // Render card content based on showOnHome status
+  const renderCardContent = (city) => {
+    const cardContent = (
+      <div className={`overflow-hidden rounded-xl shadow-lg ${!city.showOnHome ? 'bg-gray-100' : 'bg-white'}`}>
+        <div className="aspect-[4/3] overflow-hidden relative">
+          {/* Gray overlay for disabled cards */}
+          <div className={`absolute inset-0 z-10 ${!city.showOnHome ? 'bg-black/50' : 'bg-black/30'}`}></div>
+          
+          <img 
+            src={city.image} 
+            alt={city.name} 
+            className={`w-full h-full object-cover transition-transform duration-500 ${city.showOnHome ? 'group-hover:scale-105' : 'filter grayscale'}`}
+          />
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20"></div>
+          
+          <div className="absolute inset-0 flex items-end z-30">
+            <div className="p-4 w-full">
+              <h3 className="text-white text-lg font-bold font-heading mb-1">
+                {city.name}
+              </h3>
+              <p className="text-white/90 text-xs font-body">
+                {city.showOnHome 
+                  ? `Discover amazing places in ${city.name}`
+                  : "Coming soon"
+                }
+              </p>
+            </div>
+          </div>
+          
+          {/* Lock icon for disabled cards */}
+          {!city.showOnHome && (
+            <div className="absolute top-3 right-3 z-40 bg-gray-900/80 p-2 rounded-full">
+              <Lock size={16} className="text-white" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+
+    if (city.showOnHome) {
+      return (
+        <Link 
+          to={`/city/${city._id}`}
+          className="block group"
+          style={{ overflow: 'hidden' }}
+        >
+          {cardContent}
+        </Link>
+      );
+    } else {
+      return (
+        <div className="cursor-not-allowed" title="This destination is currently unavailable">
+          {cardContent}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="py-16 bg-white border-b border-gray-100">
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-10">
+      <div className="container mx-auto px-8 md:px-12 lg:px-16">
+        <div className="flex flex-col md:flex-row justify-between items-start mb-10 px-4">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -176,12 +236,12 @@ const LocationPicker = () => {
                 <motion.button 
                   onClick={() => scroll('left')}
                   disabled={activeIndex === 0}
-                  whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+                  whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md ${
                     activeIndex === 0 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Previous"
                 >
@@ -190,12 +250,12 @@ const LocationPicker = () => {
                 <motion.button 
                   onClick={() => scroll('right')}
                   disabled={activeIndex >= maxScrollIndex}
-                  whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+                  whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md ${
                     activeIndex >= maxScrollIndex 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Next"
                 >
@@ -203,7 +263,7 @@ const LocationPicker = () => {
                 </motion.button>
               </motion.div>
             </div>
-            <p className="text-gray-600 font-body text-left mt-2">
+            <p className="text-gray-600 font-body text-left mt-2 pl-0.5">
               It's time to travel and explore
             </p>
           </motion.div>
@@ -211,17 +271,17 @@ const LocationPicker = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
-            className="hidden md:flex space-x-3 mt-4 md:mt-0"
+            className="hidden md:flex space-x-3 mt-4 md:mt-2"
           >
             <motion.button 
               onClick={() => scroll('left')}
               disabled={activeIndex === 0}
-              whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+              whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md ${
                 activeIndex === 0 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Previous"
             >
@@ -230,12 +290,12 @@ const LocationPicker = () => {
             <motion.button 
               onClick={() => scroll('right')}
               disabled={activeIndex >= maxScrollIndex}
-              whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#3b82f6", color: "#ffffff" } : {}}
+              whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md ${
                 activeIndex >= maxScrollIndex 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300'
+                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Next"
             >
@@ -244,11 +304,11 @@ const LocationPicker = () => {
           </motion.div>
         </div>
         
-        <div className="relative" style={{ overflow: 'hidden' }}>
+        <div className="relative px-4" style={{ overflow: 'hidden' }}>
           {/* Scrollable Container */}
           <div 
             ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto hide-scrollbar py-2 px-2"
+            className="flex gap-4 overflow-x-auto hide-scrollbar py-2"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
@@ -268,36 +328,7 @@ const LocationPicker = () => {
                   scrollSnapAlign: 'start' // Snap to start of card
                 }}
               >
-                <Link 
-                  to={`/city/${city._id}`}
-                  className="block group"
-                  style={{ overflow: 'hidden' }}
-                >
-                  <div className="overflow-hidden rounded-xl shadow-lg bg-white">
-                    <div className="aspect-[4/3] overflow-hidden relative">
-                      <div className="absolute inset-0 bg-black/30 z-10"></div>
-                      <img 
-                        src={city.image} 
-                        alt={city.name} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20"></div>
-                      
-                      <div className="absolute inset-0 flex items-end z-30">
-                        <div className="p-4 w-full">
-                          <h3 className="text-white text-lg font-bold font-heading mb-1">
-                            {city.name}
-                          </h3>
-                          <p className="text-white/90 text-xs font-body">
-                            Discover amazing places in {city.name}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                {renderCardContent(city)}
               </div>
             ))}
           </div>
@@ -305,7 +336,7 @@ const LocationPicker = () => {
         
         {/* Navigation Dots - Only show when needed */}
         {shouldShowDots && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-6 px-4">
             {Array.from({ length: numDots }).map((_, index) => (
               <button
                 key={index}
@@ -330,7 +361,7 @@ const LocationPicker = () => {
               >
                 <span className={`block h-2 w-2 rounded-full transition-colors duration-300 ${
                   index === activeIndex 
-                    ? 'bg-blue-500' 
+                    ? 'bg-[#a0936a]' 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}></span>
               </button>
