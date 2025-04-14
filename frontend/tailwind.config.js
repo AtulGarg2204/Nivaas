@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -10,6 +11,10 @@ module.exports = {
         'subheading': ['Inter', 'sans-serif'],
         'body': ['Inter', 'sans-serif'],
         'poppins': ['Poppins', '"Poppins Fallback"', 'sans-serif'], // Kept for backward compatibility
+      },
+      fontWeight: {
+        // Ensure headings have a default font weight of 400
+        'heading': '400',
       },
     },
   },

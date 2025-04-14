@@ -46,7 +46,7 @@ const CityProperties = () => {
       setViewportHeight('50vh');
     } else {
       // For desktop, use exact viewport height to ensure banner fills screen
-      setViewportHeight('100vh');
+      setViewportHeight('50vh');
     }
   };
 
@@ -351,8 +351,8 @@ const CityProperties = () => {
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-heading">{city.name}</h1>
             <div className="bg-[rgba(14,63,68,0.95)] text-white text-sm font-bold px-4 py-1 rounded-full font-body inline-block">
-              {filteredProperties.length} Properties Available
-            </div>
+  Discover amazing places in {city.name}
+</div>
           </div>
         </div>
       </div>

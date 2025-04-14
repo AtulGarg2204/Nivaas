@@ -7,12 +7,68 @@ const ReviewsSection = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [expandedReviews, setExpandedReviews] = useState({});
+  const [reviewsPerView, setReviewsPerView] = useState(3); // Default for desktop
+  const scrollContainerRef = useRef(null);
   const sectionRef = useRef(null);
 
-  const visibleReviews = 3; // Number of reviews visible at once
+  // Array of background colors for default profile pictures
+  const bgColors = [
+    "bg-red-500",
+    "bg-blue-500",
+    "bg-green-500", 
+    "bg-yellow-500",
+    "bg-purple-500",
+    "bg-pink-500",
+    "bg-indigo-500",
+    "bg-teal-500",
+    "bg-orange-500",
+    "bg-lime-500",
+    "bg-emerald-500",
+    "bg-cyan-500",
+    "bg-sky-500",
+    "bg-violet-500",
+    "bg-fuchsia-500",
+    "bg-rose-500",
+    "bg-amber-500"
+  ];
 
+  // Function to get review source icon
+  const getReviewSourceIcon = (source) => {
+    switch(source) {
+      case 'airbnb':
+        return '/airbnb.png';
+      case 'makemytrip':
+        return '/makemytrip.png';
+      case 'goibibo':
+        return '/airbnb.png';
+      case 'google':
+        return '/google.png';
+      default:
+        return null;
+    }
+  };
+
+  // Function to get a deterministic color based on the username
+  const getRandomColor = (name) => {
+    if (!name) return bgColors[0];
+    
+    // Create a simple hash from the name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Use the hash to pick a color - ensure we pick a different color for the same name
+    const colorIndex = Math.abs(hash) % bgColors.length;
+    return bgColors[colorIndex];
+  };
+
+  // Function to get first letter of name
+  const getInitial = (name) => {
+    return name && name.length > 0 ? name.charAt(0).toUpperCase() : "?";
+  };
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -50,13 +106,64 @@ const ReviewsSection = () => {
     fetchReviews();
   }, []);
 
-  const handlePrevious = () => {
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
+  // Function to update reviews per view based on screen size
+  const updateReviewsPerView = () => {
+    if (window.innerWidth < 768) {
+      setReviewsPerView(1); // Mobile: 1 review
+    } else if (window.innerWidth < 1024) {
+      setReviewsPerView(2); // Tablet: 2 reviews
+    } else {
+      setReviewsPerView(3); // Desktop: 3 reviews
+    }
   };
 
-  const handleNext = () => {
-    setCurrentIndex(prev => (prev + visibleReviews < reviews.length ? prev + 1 : prev));
+  // Initialize and listen for window resize
+  useEffect(() => {
+    updateReviewsPerView();
+    window.addEventListener('resize', updateReviewsPerView);
+    
+    return () => {
+      window.removeEventListener('resize', updateReviewsPerView);
+    };
+  }, []);
+
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const { current } = scrollContainerRef;
+      // Calculate the width of a single review card plus its margin
+      const container = current;
+      const cards = container.querySelectorAll('.review-card');
+      if (!cards.length) return;
+      
+      const cardWidth = cards[0]?.offsetWidth;
+      const cardMargin = 24; // Gap between cards (from the gap-6 class)
+      const scrollAmount = cardWidth + cardMargin;
+      
+      let newIndex = activeIndex;
+      if (direction === 'left') {
+        newIndex = Math.max(0, activeIndex - 1);
+        setActiveIndex(newIndex);
+        container.scrollTo({
+          left: newIndex * scrollAmount,
+          behavior: 'smooth'
+        });
+      } else {
+        newIndex = Math.min(reviews.length - reviewsPerView, activeIndex + 1);
+        setActiveIndex(newIndex);
+        container.scrollTo({
+          left: newIndex * scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
+
+  // Calculate if we need to show navigation arrows
+  // Only show arrows if there are more reviews than cards per view
+  const shouldShowArrows = reviews.length > reviewsPerView;
+  
+  // Calculate max scroll index
+  const maxScrollIndex = reviews.length - reviewsPerView;
 
   // Toggle expanded state for a review
   const toggleExpanded = (reviewId) => {
@@ -130,47 +237,71 @@ const ReviewsSection = () => {
     ));
   };
 
+  // Get card width based on reviews per view
+  const getCardWidth = () => {
+    const gapPercentage = (reviewsPerView - 1) * 24 / reviewsPerView; // account for gaps
+    return `calc(${100 / reviewsPerView}% - ${gapPercentage}px)`;
+  };
+
   // Generate avatar with first letter of name if no profile picture
-  const renderAvatar = (review) => {
+  const renderAvatar = (review, index) => {
     if (review.profilePicture) {
       return (
-        <img 
-          src={review.profilePicture} 
-          alt={review.userName} 
-          className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
-        />
+        <div className="relative">
+          <img 
+            src={review.profilePicture} 
+            alt={review.userName} 
+            className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
+          />
+          {/* Source icon overlay */}
+          {review.source && getReviewSourceIcon(review.source) && (
+            <div className="absolute bottom-0 right-4 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
+              <img 
+                src={getReviewSourceIcon(review.source)} 
+                alt={review.source}
+                className="w-5 h-5 object-cover" 
+                style={{
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  borderRadius: '50%'
+                }}
+              />
+            </div>
+          )}
+        </div>
       );
     } else {
       // Get first character of username 
-      const initial = review.userName ? review.userName.charAt(0).toUpperCase() : '?';
+      const initial = getInitial(review.userName);
       
-      // Generate a consistent background color based on the initial
-      const colors = [
-        "bg-[rgba(14,63,68,0.95)]", "bg-[#a0936a]", "bg-gray-700", 
-        "bg-[rgba(14,63,68,0.8)]", "bg-[#a0936a]", "bg-gray-600", 
-        "bg-[rgba(14,63,68,0.7)]", "bg-[#a0936a]", "bg-gray-500"
-      ];
-      const colorIndex = initial.charCodeAt(0) % colors.length;
-      const bgColor = colors[colorIndex];
+      // Use the same random color generation approach as PropertyDetails
+      const randomColor = getRandomColor(review.userName + index);
       
       return (
-        <div className={`w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm flex items-center justify-center ${bgColor} text-white font-bold text-lg`}>
-          {initial}
+        <div className="relative">
+          <div className={`w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm flex items-center justify-center ${randomColor} text-white font-bold text-lg`}>
+            {initial}
+          </div>
+          {/* Source icon overlay */}
+          {review.source && getReviewSourceIcon(review.source) && (
+            <div className="absolute bottom-0 right-4 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
+              <img 
+                src={getReviewSourceIcon(review.source)} 
+                alt={review.source}
+                className="w-5 h-5 object-cover" 
+                style={{
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  borderRadius: '50%'
+                }}
+              />
+            </div>
+          )}
         </div>
       );
     }
   };
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -264,167 +395,180 @@ const ReviewsSection = () => {
       </div>
       
       <div className="container mx-auto px-8 md:px-12 lg:px-16 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start mb-10 px-4">
           <motion.div 
             initial="hidden"
             animate="visible"
             variants={headerVariants}
-            className="text-left px-4"
+            className="text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-800 text-left">
+              <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
                 Happy Guest <span className="text-[#a0936a]">Stories</span>
               </h2>
               
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
-                className="flex space-x-3 ml-4 md:hidden"
-              >
-                <motion.button 
-                  onClick={handlePrevious}
-                  disabled={currentIndex === 0}
-                  whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
-                  whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
-                  className={`p-2 rounded-full shadow-md ${
-                    currentIndex === 0 
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
-                  }`}
-                  aria-label="Previous"
+              {/* Mobile navigation arrows */}
+              {shouldShowArrows && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
+                  className="flex space-x-3 ml-4 md:hidden"
                 >
-                  <ChevronLeft size={20} />
-                </motion.button>
-                <motion.button 
-                  onClick={handleNext}
-                  disabled={currentIndex + visibleReviews >= reviews.length}
-                  whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
-                  whileTap={currentIndex + visibleReviews < reviews.length ? { scale: 0.95 } : {}}
-                  className={`p-2 rounded-full shadow-md ${
-                    currentIndex + visibleReviews >= reviews.length 
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
-                  }`}
-                  aria-label="Next"
-                >
-                  <ChevronRight size={20} />
-                </motion.button>
-              </motion.div>
+                  <motion.button 
+                    onClick={() => scroll('left')}
+                    disabled={activeIndex === 0}
+                    whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                    whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
+                    className={`p-2 rounded-full shadow-md cursor-pointer ${
+                      activeIndex === 0 
+                        ? 'bg-gray-100 text-gray-300 opacity-50' 
+                        : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                    }`}
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft size={20} />
+                  </motion.button>
+                  <motion.button 
+                    onClick={() => scroll('right')}
+                    disabled={activeIndex >= maxScrollIndex}
+                    whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                    whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
+                    className={`p-2 rounded-full shadow-md cursor-pointer ${
+                      activeIndex >= maxScrollIndex 
+                        ? 'bg-gray-100 text-gray-300 opacity-50' 
+                        : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                    }`}
+                    aria-label="Next"
+                  >
+                    <ChevronRight size={20} />
+                  </motion.button>
+                </motion.div>
+              )}
             </div>
             <p className="text-gray-600 font-body text-left mt-2 pl-0.5">
               See why NIVAAS is the preferred choice for luxury <span className="text-[#a0936a]">stays</span>
             </p>
           </motion.div>
           
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
-            className="hidden md:flex space-x-3 mt-4 md:mt-0"
-          >
-            <motion.button 
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
-              whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
-              className={`p-2 rounded-full shadow-md ${
-                currentIndex === 0 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
-              }`}
-              aria-label="Previous"
+          {/* Desktop navigation arrows */}
+          {shouldShowArrows && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
+              className="hidden md:flex space-x-3 mt-4 md:mt-2"
             >
-              <ChevronLeft size={20} />
-            </motion.button>
-            <motion.button 
-              onClick={handleNext}
-              disabled={currentIndex + visibleReviews >= reviews.length}
-              whileHover={currentIndex + visibleReviews < reviews.length ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
-              whileTap={currentIndex + visibleReviews < reviews.length ? { scale: 0.95 } : {}}
-              className={`p-2 rounded-full shadow-md ${
-                currentIndex + visibleReviews >= reviews.length 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
-              }`}
-              aria-label="Next"
-            >
-              <ChevronRight size={20} />
-            </motion.button>
-          </motion.div>
+              <motion.button 
+                onClick={() => scroll('left')}
+                disabled={activeIndex === 0}
+                whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
+                className={`p-2 rounded-full shadow-md cursor-pointer ${
+                  activeIndex === 0 
+                    ? 'bg-gray-100 text-gray-300 opacity-50' 
+                    : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                }`}
+                aria-label="Previous"
+              >
+                <ChevronLeft size={20} />
+              </motion.button>
+              <motion.button 
+                onClick={() => scroll('right')}
+                disabled={activeIndex >= maxScrollIndex}
+                whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
+                className={`p-2 rounded-full shadow-md cursor-pointer ${
+                  activeIndex >= maxScrollIndex 
+                    ? 'bg-gray-100 text-gray-300 opacity-50' 
+                    : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                }`}
+                aria-label="Next"
+              >
+                <ChevronRight size={20} />
+              </motion.button>
+            </motion.div>
+          )}
         </div>
         
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="review-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4"
-          style={{ 
-            alignItems: 'stretch' // Ensure cards stretch to equal height
-          }}
-        >
-          {reviews.slice(currentIndex, currentIndex + visibleReviews).map((review, index) => {
-            // Create unique ID for this review card
-            const reviewId = `review-${index}-${review._id || Math.random().toString()}`;
-            const isExpanded = expandedReviews[reviewId];
-            
-            return (
-              <motion.div 
-                key={reviewId}
-                variants={itemVariants}
-                className="flex flex-col h-full"
-                style={{ 
-                  isolation: isExpanded ? 'isolate' : 'auto'
-                }}
-              >
-                <div 
-                  className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100/80 flex flex-col relative transform transition-all duration-500 hover:shadow-xl hover:-translate-y-1 h-full"
-                  style={{
-                    background: "white",
-                    overflow: 'visible',
-                    transition: 'all 0.3s ease',
-                    zIndex: isExpanded ? 10 : 1
+        <div className="relative px-4" style={{ overflow: 'hidden' }}>
+          {/* Scrollable Container */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto hide-scrollbar py-2"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              overflowY: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              scrollSnapType: 'x mandatory' // Add snap scrolling
+            }}
+          >
+            {reviews.map((review, index) => {
+              // Create unique ID for this review card
+              const reviewId = `review-${index}-${review._id || Math.random().toString()}`;
+              const isExpanded = expandedReviews[reviewId];
+              
+              return (
+                <motion.div 
+                  key={reviewId}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="review-card"
+                  style={{ 
+                    width: getCardWidth(),
+                    flexShrink: 0,
+                    scrollSnapAlign: 'start', // Snap to start of card
+                    isolation: isExpanded ? 'isolate' : 'auto'
                   }}
                 >
-                  {/* Decorative quote element */}
-                  <div className="absolute -top-2 -right-2 text-gray-200 transform rotate-12">
-                    <Quote size={40} />
-                  </div>
-                  
-                  <div className="flex mb-3 relative z-10 text-left">
-                    {renderStars(review.rating)}
-                  </div>
-                  
-                  <div className={`mb-6 flex-grow relative z-10 w-full ${isExpanded ? 'expanded-content' : ''}`}>
-                    {renderReviewText(review, index)}
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-400 relative z-10">
-                    <div className="flex items-center">
-                      {renderAvatar(review)}
-                      <div className="text-left">
-                        <p className="font-medium font-body text-gray-900">{review.userName}</p>
-                        <p className="text-gray-500 text-sm font-body">{review.propertyName}</p>
-                        <p className="text-gray-400 text-xs font-body">{review.city}</p>
-                      </div>
+                  <div 
+                    className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100/80 flex flex-col relative transform transition-all duration-500 hover:shadow-xl hover:-translate-y-1 h-full"
+                    style={{
+                      background: "white",
+                      overflow: 'visible',
+                      transition: 'all 0.3s ease',
+                      zIndex: isExpanded ? 10 : 1
+                    }}
+                  >
+                    {/* Decorative quote element */}
+                    <div className="absolute -top-2 -right-2 text-gray-200 transform rotate-12">
+                      <Quote size={40} />
                     </div>
                     
-                    {/* Reference App Logo - Now in a circle just like profile picture */}
-                    {review.referenceApp?.logo && (
-                      <div className="ml-auto">
-                        <img 
-                          src={review.referenceApp.logo} 
-                          alt={review.referenceApp.name || "Reference App"} 
-                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                          title={review.referenceApp.name || ""}
-                        />
+                    <div className="flex mb-3 relative z-10 text-left">
+                      {renderStars(review.rating)}
+                    </div>
+                    
+                    <div className={`mb-6 flex-grow relative z-10 w-full ${isExpanded ? 'expanded-content' : ''}`}>
+                      {renderReviewText(review, index)}
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-400 relative z-10">
+                      <div className="flex items-center">
+                        {renderAvatar(review, index)}
+                        <div className="text-left">
+                          <p className="font-medium font-body text-gray-900">{review.userName}</p>
+                          <p className="text-gray-500 text-sm font-body">{review.propertyName}</p>
+                          <p className="text-gray-400 text-xs font-body">{review.city}</p>
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
       </div>
+      
+      {/* Add custom CSS for hiding scrollbar */}
+      <style jsx="true">{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+          width: 0;
+          height: 0;
+        }
+      `}</style>
     </div>
   );
 };

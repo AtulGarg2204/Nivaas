@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LocationPicker = () => {
@@ -183,13 +183,6 @@ const LocationPicker = () => {
               </p>
             </div>
           </div>
-          
-          {/* Lock icon for disabled cards */}
-          {!city.showOnHome && (
-            <div className="absolute top-3 right-3 z-40 bg-gray-900/80 p-2 rounded-full">
-              <Lock size={16} className="text-white" />
-            </div>
-          )}
         </div>
       </div>
     );
@@ -206,7 +199,7 @@ const LocationPicker = () => {
       );
     } else {
       return (
-        <div className="cursor-not-allowed" title="This destination is currently unavailable">
+        <div className="cursor-pointer" title="This destination is coming soon">
           {cardContent}
         </div>
       );
@@ -224,7 +217,7 @@ const LocationPicker = () => {
             className="text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-800 text-left">
+              <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
                 Pick Your Location
               </h2>
               
@@ -238,9 +231,9 @@ const LocationPicker = () => {
                   disabled={activeIndex === 0}
                   whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
-                  className={`p-2 rounded-full shadow-md ${
+                  className={`p-2 rounded-full shadow-md cursor-pointer ${
                     activeIndex === 0 
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      ? 'bg-gray-100 text-gray-300 opacity-50' 
                       : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Previous"
@@ -252,9 +245,9 @@ const LocationPicker = () => {
                   disabled={activeIndex >= maxScrollIndex}
                   whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
                   whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
-                  className={`p-2 rounded-full shadow-md ${
+                  className={`p-2 rounded-full shadow-md cursor-pointer ${
                     activeIndex >= maxScrollIndex 
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      ? 'bg-gray-100 text-gray-300 opacity-50' 
                       : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Next"
@@ -278,9 +271,9 @@ const LocationPicker = () => {
               disabled={activeIndex === 0}
               whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
-              className={`p-2 rounded-full shadow-md ${
+              className={`p-2 rounded-full shadow-md cursor-pointer ${
                 activeIndex === 0 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  ? 'bg-gray-100 text-gray-300 opacity-50' 
                   : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Previous"
@@ -292,9 +285,9 @@ const LocationPicker = () => {
               disabled={activeIndex >= maxScrollIndex}
               whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
               whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
-              className={`p-2 rounded-full shadow-md ${
+              className={`p-2 rounded-full shadow-md cursor-pointer ${
                 activeIndex >= maxScrollIndex 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  ? 'bg-gray-100 text-gray-300 opacity-50' 
                   : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
               }`}
               aria-label="Next"

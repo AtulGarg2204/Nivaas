@@ -30,7 +30,7 @@ const Footer = () => {
   
   return (
     <footer className="bg-[#0e3f44] text-white">
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-12">
         <div className="px-6 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
             {/* Column 1: Company info - Now taking 6 of 12 columns */}
@@ -58,11 +58,18 @@ const Footer = () => {
                 </a>
               </div>
 
-              {/* For Bookings Contact - Left aligned and horizontal */}
-              <div className="flex items-center">
-                <span className="text-white font-bold font-heading mr-4">For Bookings Contact:</span>
-                <span className="text-gray-300">+91 7969469950</span>
-              </div>
+              {/* For Bookings Contact - Vertical layout */}
+              <div className="flex items-center gap-28 mb-4">
+  <div>
+    <span className="text-gray-400 text-sm">For bookings contact</span>
+    <div className="text-gray-300 text-sm font-body">1-800-111-825</div>
+  </div>
+  <div className="text-gray-300 text-sm font-body">
+    reservations@ihcltata.com
+  </div>
+</div>
+
+
             </div>
 
             {/* Column 2: Top Destinations (Dynamic from API) - Now taking 3 of 12 columns */}
@@ -120,9 +127,9 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Copyright section with "Find us on" links - Single line break */}
+      {/* Copyright section with "Find us on" links - Increased spacing */}
       <div className="border-t border-gray-800">
-        <div className="container mx-auto py-4">
+        <div className="container mx-auto py-6">
           <div className="px-6 md:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm font-body">
               © {currentYear} NIVAAS. All rights reserved.

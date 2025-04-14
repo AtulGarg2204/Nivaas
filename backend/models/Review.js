@@ -1,4 +1,3 @@
-// backend/models/Review.js
 const mongoose = require('mongoose');
 
 const ReviewSchema = new mongoose.Schema({
@@ -38,15 +37,11 @@ const ReviewSchema = new mongoose.Schema({
     type: String, // Base64 encoded image
     default: '' // No longer required
   },
-  referenceApp: {
-    name: {
-      type: String,
-      default: ''
-    },
-    logo: {
-      type: String, // Base64 encoded image
-      default: ''
-    }
+  // Changed from referenceApp object to source field
+  source: {
+    type: String,
+    enum: ['airbnb', 'makemytrip', 'goibibo', 'google', 'direct'],
+    default: 'direct'
   },
   isActive: {
     type: Boolean,

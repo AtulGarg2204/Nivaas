@@ -16,8 +16,7 @@ const PropertyDetails = () => {
   const [guests, setGuests] = useState("1");
   const [children, setChildren] = useState("0");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [showAllPhotos, setShowAllPhotos] = useState(false);
@@ -164,32 +163,47 @@ const PropertyDetails = () => {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     
-    if (!checkInDate || !checkOutDate || !name || !email || !phone) {
-      setSubmitMessage("Please fill all required fields");
+    if (!checkInDate || !checkOutDate) {
+      setSubmitMessage("Please fill in check-in and check-out dates");
       return;
     }
     
     setSubmitting(true);
     setSubmitMessage("");
     
-    // Here you would normally send the booking request to your backend
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const whatsappMessage = encodeURIComponent(
+        `Hey Team Nivaas! ✨\n` +
+        `I'd like to check availability for the following stay:\n` +
+        `Property Name: ${property.name}\n` +
+        `Check-in: ${checkInDate}\n` +
+        `Check-out: ${checkOutDate}\n` +
+        `Number of guests: ${guests} adults, ${children} children\n` +
+        `Please let me know the availability and booking details`
+      );
       
-      setSubmitMessage("Your booking request has been submitted. We'll contact you shortly!");
-      // Reset form
-      setCheckInDate("");
-      setCheckOutDate("");
-      setGuests("1");
-      setChildren("0");
+      // Set success message
+      setSubmitMessage("Your booking request has been submitted. Redirecting to WhatsApp...");
+      
+      // After a short delay, redirect to WhatsApp
+      setTimeout(() => {
+        window.open(`https://wa.me/918168650582?text=${whatsappMessage}`, '_blank');
+        
+        // Reset form
+        setCheckInDate("");
+        setCheckOutDate("");
+        setGuests("1");
+        setChildren("0");
+        setName("");
+        setSubmitMessage("Your booking request has been submitted!");
+      }, 1500);
+      
     } catch (error) {
       setSubmitMessage("There was an error submitting your request. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
-
   const scrollToReviews = () => {
     reviewsRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -511,13 +525,13 @@ const PropertyDetails = () => {
                       <div className="flex items-start">
                         <div className="relative mr-4">
                         {review.profilePicture ? (
-  <div className="relative">
+  <div className="relative group">
     <img 
       src={review.profilePicture} 
       alt={review.userName} 
       className="w-12 h-12 rounded-full object-cover border border-gray-200"
     />
-    {/* Source icon overlay - Enhanced to center and fill circle */}
+    {/* Source icon overlay */}
     {review.source && getReviewSourceIcon(review.source) && (
       <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
         <img 
@@ -532,13 +546,23 @@ const PropertyDetails = () => {
         />
       </div>
     )}
+    
+    {/* Tooltip that appears on hover */}
+    {review.source && (
+      <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs font-medium text-white bg-gray-800 rounded-md shadow-sm pointer-events-none whitespace-nowrap">
+        Posted on {review.source.charAt(0).toUpperCase() + review.source.slice(1)}
+        <svg className="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255">
+          <polygon className="fill-current" points="0,0 127.5,127.5 255,0" />
+        </svg>
+      </div>
+    )}
   </div>
 ) : (
-  <div className="relative">
+  <div className="relative group">
     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${getRandomColor(review.userName + index)}`}>
       {getInitial(review.userName)}
     </div>
-    {/* Source icon overlay - Enhanced to center and fill circle */}
+    {/* Source icon overlay */}
     {review.source && getReviewSourceIcon(review.source) && (
       <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
         <img 
@@ -551,6 +575,16 @@ const PropertyDetails = () => {
             borderRadius: '50%'
           }}
         />
+      </div>
+    )}
+    
+    {/* Tooltip that appears on hover */}
+    {review.source && (
+      <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs font-medium text-white bg-gray-800 rounded-md shadow-sm pointer-events-none whitespace-nowrap">
+        Posted on {review.source.charAt(0).toUpperCase() + review.source.slice(1)}
+        <svg className="absolute text-gray-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255">
+          <polygon className="fill-current" points="0,0 127.5,127.5 255,0" />
+        </svg>
       </div>
     )}
   </div>
@@ -607,143 +641,111 @@ const PropertyDetails = () => {
             </div>
           </div>
 
-          {/* Right Column - 1/3 width */}
-          <div className="lg:w-1/3">
-            <div className="bg-white rounded-lg shadow-md p-8 sticky top-24 border border-gray-200">
-              <h2 className="text-xl font-bold mb-8 font-heading text-left">
-                Get Assistance for Villa Search
-              </h2>
-              
-              <form onSubmit={handleBookingSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="FirstName"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded font-body"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="LastName"
-                      className="w-full p-3 border border-gray-300 rounded font-body"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <input
-                    type="email"
-                    placeholder="example@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded font-body"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded font-body"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-500 font-body">Check in</span>
-                    <span className="text-sm text-gray-500 font-body">Check out</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <input
-                        type="date"
-                        value={checkInDate}
-                        onChange={(e) => setCheckInDate(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded font-body"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="date"
-                        value={checkOutDate}
-                        onChange={(e) => setCheckOutDate(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded font-body"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="number"
-                      placeholder="Guest"
-                      value={guests}
-                      onChange={(e) => setGuests(e.target.value)}
-                      min="1"
-                      className="w-full p-3 border border-gray-300 rounded font-body"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="number"
-                      placeholder="Children"
-                      value={children}
-                      onChange={(e) => setChildren(e.target.value)}
-                      min="0"
-                      className="w-full p-3 border border-gray-300 rounded font-body"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    defaultValue={property.city}
-                    className="w-full p-3 border border-gray-300 rounded font-body"
-                  />
-                </div>
-                
-                {submitMessage && (
-                  <div className={`p-3 rounded font-body text-center ${
-                    submitMessage.includes('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                  }`}>
-                    {submitMessage}
-                  </div>
-                )}
-                
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className={`w-full p-3 rounded font-body ${
-                    submitting ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
-                  style={{ backgroundColor: primaryBtnBg, color: primaryBtnText }}
-                >
-                  {submitting ? 'Sending...' : 'Send application'}
-                </button>
-              </form>
-            </div>
+  {/* Right Column - 1/3 width */}
+<div className="lg:w-1/3">
+  <div className="bg-white rounded-lg shadow-md p-8 sticky top-24 border border-gray-200">
+    <h2 className="text-xl font-bold mb-8 font-heading text-left">
+      Get Assistance for Villa Search
+    </h2>
+    
+    <form onSubmit={handleBookingSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            placeholder="FirstName"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded font-body"
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="LastName"
+            className="w-full p-3 border border-gray-300 rounded font-body"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <div className="flex justify-between mb-1">
+          <span className="text-sm text-gray-500 font-body">Check in</span>
+          <span className="text-sm text-gray-500 font-body">Check out</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <input
+              type="date"
+              value={checkInDate}
+              onChange={(e) => setCheckInDate(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded font-body"
+              required
+            />
           </div>
+          <div>
+            <input
+              type="date"
+              value={checkOutDate}
+              onChange={(e) => setCheckOutDate(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded font-body"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <input
+            type="number"
+            placeholder="Guest"
+            value={guests}
+            onChange={(e) => setGuests(e.target.value)}
+            min="1"
+            className="w-full p-3 border border-gray-300 rounded font-body"
+          />
+        </div>
+        <div>
+          <input
+            type="number"
+            placeholder="Children"
+            value={children}
+            onChange={(e) => setChildren(e.target.value)}
+            min="0"
+            className="w-full p-3 border border-gray-300 rounded font-body"
+          />
+        </div>
+      </div>
+      
+      {submitMessage && (
+        <div className={`p-3 rounded font-body text-center ${
+          submitMessage.includes('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+        }`}>
+          {submitMessage}
+        </div>
+      )}
+      
+      <button
+        type="submit"
+        disabled={submitting}
+        className={`w-full p-3 rounded font-body ${
+          submitting ? 'opacity-70 cursor-not-allowed' : ''
+        }`}
+        style={{ backgroundColor: primaryBtnBg, color: primaryBtnText }}
+      >
+        {submitting ? 'Sending...' : 'Send application'}
+      </button>
+    </form>
+  </div>
+</div>
         </div>
       </div>
 
       {/* Photo gallery modal */}
       {showAllPhotos && (
-        <div className="fixed inset-0 bg-black/70 z-50 overflow-y-auto">
-          <div className="max-w-4xl w-full mx-auto my-6 bg-white rounded-lg shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/70 z-50 overflow-y-auto flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto my-6 bg-white rounded-lg shadow-2xl overflow-hidden relative">
             {/* Modal header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-800 font-heading">All Photos</h3>
@@ -802,11 +804,7 @@ const PropertyDetails = () => {
                           className="w-full h-auto object-contain rounded mx-auto"
                           style={{ maxHeight: '60vh' }}
                         />
-                        
-                        {/* Image counter badge */}
-                        <div className="absolute bottom-2 right-2 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
-                          {index + 1} / {property.images.length}
-                        </div>
+                    
                       </div>
                     </div>
                   </div>
@@ -816,6 +814,18 @@ const PropertyDetails = () => {
           </div>
         </div>
       )}
+      {/* Back to Properties Link */}
+<div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 text-center">
+  <Link 
+    to={`/city/${property.cityId}`} 
+    className="inline-flex items-center text-amber-600 hover:text-amber-700"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+    </svg>
+    Back to all properties in {property.city}
+  </Link>
+</div>
       <Footer/>
     </div>
   );

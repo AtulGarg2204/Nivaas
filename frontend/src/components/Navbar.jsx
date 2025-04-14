@@ -23,7 +23,8 @@ const Navbar = () => {
   // Check if we're on a page that should have transparent navbar initially
   const isCityPage = location.pathname.startsWith('/city/');
   const isHomePage = location.pathname === '/';
-  const hasTransparentHeader = isHomePage || isCityPage;
+  const isBlogDetailPage = location.pathname.startsWith('/blog/');
+  const hasTransparentHeader = isHomePage || isCityPage || isBlogDetailPage;
 
   // Fetch cities and properties
   useEffect(() => {
@@ -250,96 +251,145 @@ const Navbar = () => {
               </div>
             </motion.div>
             
-            {/* City Dropdown */}
-            <AnimatePresence>
-              {showCityDropdown && (
-                <motion.div 
-                  className="fixed left-auto mt-2 bg-white rounded-lg shadow-xl py-2 min-w-[200px] z-50"
-                  style={{ 
-                    top: "auto", 
-                    maxHeight: "80vh", 
-                    overflow: "visible" 
+           {/* City Dropdown */}
+<AnimatePresence>
+  {showCityDropdown && (
+    <motion.div 
+      className="fixed left-0 right-0 mt-2 bg-white rounded-b-lg shadow-xl z-50"
+      style={{ 
+        top: "70px", // Adjust based on your navbar height
+        maxHeight: "400px" // Fixed height for the dropdown
+      }}
+      variants={dropdownVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      ref={cityDropdownRef}
+    >
+      <div className="container mx-auto px-8 md:px-16 lg:px-24">
+        <div className="px-4 pb-2 mb-4 border-b border-gray-200">
+          <h3 className="text-xl font-medium text-gray-800">Popular Destinations</h3>
+        </div>
+        
+        {loading ? (
+          <div className="px-4 py-2 text-gray-600">Loading...</div>
+        ) : cities.length > 0 ? (
+          <div className="grid grid-cols-4 gap-8 h-[300px]"> {/* Fixed height container */}
+            {/* First column - City list with vertical scrolling if needed */}
+            <div className="col-span-1 border-r border-gray-200 pr-4 overflow-y-auto h-full">
+              {cities.map(city => (
+                <Link 
+                  key={city._id}
+                  to={`/city/${city._id}`}
+                  className={`block py-2 px-4 rounded-md transition-colors ${
+                    hoveredCity === city._id ? 'bg-gray-100' : 'hover:bg-gray-50'
+                  }`}
+                  onMouseEnter={() => setHoveredCity(city._id)}
+                  onClick={() => {
+                    setShowCityDropdown(false);
+                    setHoveredCity(null);
                   }}
-                  variants={dropdownVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  ref={cityDropdownRef}
                 >
-                  {loading ? (
-                    <div className="px-4 py-2 text-gray-600">Loading...</div>
-                  ) : cities.length > 0 ? (
-                    cities.map(city => (
-                      <div 
-                        key={city._id}
-                        className="relative"
-                        onMouseEnter={() => setHoveredCity(city._id)}
-                        onMouseLeave={() => {
-                          // Small delay to allow mouse to move to property dropdown
-                          setTimeout(() => {
-                            if (!propertyDropdownRef.current?.contains(document.activeElement)) {
-                              setHoveredCity(null);
-                            }
-                          }, 100);
+                  <span className="font-medium text-gray-800">{city.name}</span>
+                </Link>
+              ))}
+            </div>
+            
+            {/* Properties with horizontal scrolling */}
+            <div className="col-span-3 overflow-hidden">
+              {hoveredCity && cityProperties[hoveredCity]?.length > 0 ? (
+                <div className="overflow-x-auto pb-4 h-full">
+                  <div className="flex space-x-4" style={{ minWidth: "max-content" }}>
+                    {cityProperties[hoveredCity].map(property => (
+                      <Link 
+                        key={property._id}
+                        to={`/property/${property._id}`}
+                        className="block hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
+                        onClick={() => {
+                          setShowCityDropdown(false);
+                          setHoveredCity(null);
                         }}
+                        style={{ width: "180px" }} // Fixed width for each property card
                       >
+                        <div className="w-[180px] h-[120px] rounded-lg overflow-hidden mb-2"> {/* Fixed dimensions */}
+                          {property.images && property.images.length > 0 ? (
+                            <img 
+                              src={property.images[0].data} 
+                              alt={property.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                        <div className="px-2 pb-2">
+                          <div className="font-medium text-gray-800 truncate">{property.name}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : !hoveredCity ? (
+                <div className="overflow-x-auto pb-4 h-full">
+                  <div className="flex space-x-4" style={{ minWidth: "max-content" }}>
+                    {/* Show featured properties when no city is hovered */}
+                    {Object.values(cityProperties)
+                      .flat()
+                      .slice(0, 8)
+                      .map(property => (
                         <Link 
-                          to={`/city/${city._id}`}
-                          className=" px-4 py-2 text-gray-800 hover:bg-gray-100 flex justify-between items-center"
+                          key={property._id}
+                          to={`/property/${property._id}`}
+                          className="block hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
                           onClick={() => {
                             setShowCityDropdown(false);
-                            setHoveredCity(null);
                           }}
+                          style={{ width: "180px" }} // Fixed width for each property card
                         >
-                          <span>{city.name}</span>
-                          {cityProperties[city._id]?.length > 0 && (
-                            <svg 
-                              xmlns="http://www.w3.org/2000/svg" 
-                              className="h-4 w-4" 
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          )}
+                          <div className="w-[180px] h-[120px] rounded-lg overflow-hidden mb-2"> {/* Fixed dimensions */}
+                            {property.images && property.images.length > 0 ? (
+                              <img 
+                                src={property.images[0].data} 
+                                alt={property.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                          <div className="px-2 pb-2">
+                            <div className="font-medium text-gray-800 truncate">{property.name}</div>
+                            <div className="text-sm text-gray-600 truncate">{
+                              cities.find(city => city._id === property.cityId)?.name
+                            }</div>
+                          </div>
                         </Link>
-                        
-                        {/* Properties Dropdown */}
-                        <AnimatePresence>
-                          {hoveredCity === city._id && cityProperties[city._id]?.length > 0 && (
-                            <motion.div 
-                              className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-xl py-2 min-w-[220px] z-50 max-h-[60vh] overflow-y-auto"
-                              variants={dropdownVariants}
-                              initial="hidden"
-                              animate="visible"
-                              exit="hidden"
-                              ref={propertyDropdownRef}
-                            >
-                              {cityProperties[city._id].map(property => (
-                                <Link 
-                                  key={property._id}
-                                  to={`/property/${property._id}`}
-                                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 truncate max-w-[220px]"
-                                  onClick={() => {
-                                    setShowCityDropdown(false);
-                                    setHoveredCity(null);
-                                  }}
-                                >
-                                  {property.name}
-                                </Link>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-2 text-gray-600">No cities available</div>
-                  )}
-                </motion.div>
+                      ))
+                    }
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No properties available for this destination
+                </div>
               )}
-            </AnimatePresence>
+            </div>
+          </div>
+        ) : (
+          <div className="px-4 py-2 text-gray-600">No destinations available</div>
+        )}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
           </div>
           
           {/* Blogs - changed from About Us */}

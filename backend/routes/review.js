@@ -1,8 +1,7 @@
-// backend/routes/review.js
 const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
-const Property = require('../models/Property'); // Add this to fetch property info
+const Property = require('../models/Property');
 const multer = require('multer');
 
 // Configure multer to store files in memory
@@ -11,12 +10,6 @@ const upload = multer({
     fileSize: 2 * 1024 * 1024 // 2MB limit
   }
 });
-
-// Multiple file upload middleware
-const uploadFields = upload.fields([
-  { name: 'profilePicture', maxCount: 1 },
-  { name: 'referenceAppLogo', maxCount: 1 }
-]);
 
 // Get all reviews
 router.get('/', async (req, res) => {
@@ -55,27 +48,16 @@ router.get('/property/:propertyId', async (req, res) => {
 });
 
 // Create a new review
-router.post('/', uploadFields, async (req, res) => {
+router.post('/', upload.single('profilePicture'), async (req, res) => {
   try {
-    const { userName, cityId, city, propertyId, rating, description, referenceAppName, propertyName } = req.body;
+    const { userName, cityId, city, propertyId, rating, description, source, propertyName, isActive } = req.body;
     
     // Process uploaded profile picture to base64
     let profilePicture = '';
-    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
-      const file = req.files.profilePicture[0];
+    if (req.file) {
+      const file = req.file;
       const base64Image = file.buffer.toString('base64');
       profilePicture = `data:${file.mimetype};base64,${base64Image}`;
-    } else {
-      // Set a default profile picture - commented out since we're using initials now
-      // profilePicture = 'data:image/png;base64,...';
-    }
-    
-    // Process uploaded reference app logo to base64
-    let referenceAppLogo = '';
-    if (req.files && req.files.referenceAppLogo && req.files.referenceAppLogo[0]) {
-      const file = req.files.referenceAppLogo[0];
-      const base64Image = file.buffer.toString('base64');
-      referenceAppLogo = `data:${file.mimetype};base64,${base64Image}`;
     }
     
     // If propertyName wasn't provided but propertyId was, try to fetch the property name
@@ -100,10 +82,8 @@ router.post('/', uploadFields, async (req, res) => {
       rating: parseInt(rating),
       description,
       profilePicture,
-      referenceApp: {
-        name: referenceAppName || '',
-        logo: referenceAppLogo
-      }
+      source: source || 'direct',
+      isActive: isActive === 'true' || isActive === true
     });
     
     const newReview = await review.save();
@@ -115,19 +95,19 @@ router.post('/', uploadFields, async (req, res) => {
 });
 
 // Update a review
-router.put('/:id', uploadFields, async (req, res) => {
+router.put('/:id', upload.single('profilePicture'), async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ message: 'Review not found' });
     
     // Update text fields
-    const fields = ['userName', 'cityId', 'city', 'propertyId', 'propertyName', 'rating', 'description', 'isActive'];
+    const fields = ['userName', 'cityId', 'city', 'propertyId', 'propertyName', 'rating', 'description', 'source', 'isActive'];
     fields.forEach(field => {
       if (req.body[field] !== undefined) {
         if (field === 'rating') {
           review[field] = parseInt(req.body[field]);
         } else if (field === 'isActive') {
-          review[field] = req.body[field] === 'true';
+          review[field] = req.body[field] === 'true' || req.body[field] === true;
         } else {
           review[field] = req.body[field];
         }
@@ -146,23 +126,11 @@ router.put('/:id', uploadFields, async (req, res) => {
       }
     }
     
-    // Update reference app name if provided
-    if (req.body.referenceAppName !== undefined) {
-      review.referenceApp.name = req.body.referenceAppName;
-    }
-    
     // Update profile picture if provided
-    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
-      const file = req.files.profilePicture[0];
+    if (req.file) {
+      const file = req.file;
       const base64Image = file.buffer.toString('base64');
       review.profilePicture = `data:${file.mimetype};base64,${base64Image}`;
-    }
-    
-    // Update reference app logo if provided
-    if (req.files && req.files.referenceAppLogo && req.files.referenceAppLogo[0]) {
-      const file = req.files.referenceAppLogo[0];
-      const base64Image = file.buffer.toString('base64');
-      review.referenceApp.logo = `data:${file.mimetype};base64,${base64Image}`;
     }
     
     const updatedReview = await review.save();
