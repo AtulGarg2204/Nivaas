@@ -40,7 +40,7 @@ const Footer = () => {
                 <img src={logo} alt="NIVAAS Logo" className="h-12" />
               </div>
               
-              <p className="text-gray-300 font-body mb-4 max-w-xl">
+              <p className="text-gray-300 font-body font-normal mb-4 max-w-xl">
                 Partner with NIVAAS today and let's grow together. Elevate your property, reach more guests, and maximize your potential.
               </p>
 
@@ -60,21 +60,19 @@ const Footer = () => {
 
               {/* For Bookings Contact - Vertical layout */}
               <div className="flex items-center gap-28 mb-4">
-  <div>
-    <span className="text-gray-400 text-sm">For bookings contact</span>
-    <div className="text-gray-300 text-sm font-body">1-800-111-825</div>
-  </div>
-  <div className="text-gray-300 text-sm font-body">
-    reservations@ihcltata.com
-  </div>
-</div>
-
-
+                <div>
+                  <span className="text-gray-400 text-sm font-body font-light">For bookings contact</span>
+                  <div className="text-gray-300 text-sm font-body font-normal">1-800-111-825</div>
+                </div>
+                <div className="text-gray-300 text-sm font-body font-normal">
+                  reservations@ihcltata.com
+                </div>
+              </div>
             </div>
 
             {/* Column 2: Top Destinations (Dynamic from API) - Now taking 3 of 12 columns */}
             <div className="text-left md:col-span-3">
-              <h3 className="text-lg font-bold mb-3 text-white font-heading">Top Destinations</h3>
+              <h3 className="text-lg font-medium font-subheading mb-3 text-white">Top Destinations</h3>
               {loading ? (
                 <div className="space-y-3">
                   {[1, 2, 3, 4].map((item) => (
@@ -87,7 +85,7 @@ const Footer = () => {
                     <li key={city._id}>
                       <Link 
                         to={`/city/${city._id}`} 
-                        className="text-gray-300 hover:text-white transition-colors font-body"
+                        className="text-gray-300 hover:text-white transition-colors font-body font-normal"
                       >
                         {city.name}
                       </Link>
@@ -99,25 +97,25 @@ const Footer = () => {
 
             {/* Column 3: Company with Privacy Policy and Terms - Now taking 3 of 12 columns */}
             <div className="text-left md:col-span-3">
-              <h3 className="text-lg font-bold mb-3 text-white font-heading">Company</h3>
+              <h3 className="text-lg font-medium font-subheading mb-3 text-white">Company</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/about" className="text-gray-300 hover:text-white transition-colors font-body">
+                  <Link to="/about" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/blogs" className="text-gray-300 hover:text-white transition-colors font-body">
+                  <Link to="/blogs" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
                     Blogs
                   </Link>
                 </li>
                 <li>
-                  <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors font-body">
+                  <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="text-gray-300 hover:text-white transition-colors font-body">
+                  <Link to="/terms" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
                     Terms & Conditions
                   </Link>
                 </li>
@@ -131,12 +129,12 @@ const Footer = () => {
       <div className="border-t border-gray-800">
         <div className="container mx-auto py-6">
           <div className="px-6 md:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm font-body">
+            <p className="text-gray-400 text-sm font-body font-light">
               © {currentYear} NIVAAS. All rights reserved.
             </p>
             
             <div className="mt-4 md:mt-0 flex items-center">
-              <span className="text-gray-400 text-sm mr-4">Find us on</span>
+              <span className="text-gray-400 text-sm font-body font-light mr-4">Find us on</span>
               <div className="flex space-x-4">
                 {/* Airbnb Icon */}
                 <a href="https://airbnb.com" target="_blank" rel="noopener noreferrer" aria-label="Airbnb">

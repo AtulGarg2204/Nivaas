@@ -179,8 +179,9 @@ const PropertiesSection = () => {
             className="text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
-                Explore Our Premium Properties
+              {/* Main heading in Cinzel with all capitals and font-weight 400 */}
+              <h2 className="text-3xl md:text-4xl font-heading text-gray-800 text-left uppercase tracking-wide">
+                EXPLORE OUR PREMIUM PROPERTIES
               </h2>
               
               {/* Navigation Arrows for Mobile */}
@@ -221,6 +222,7 @@ const PropertiesSection = () => {
                 </motion.div>
               )}
             </div>
+            {/* Body text with Inter font and weight 400 */}
             <p className="text-gray-600 font-body text-left mt-2 pl-0.5">
               Indulge in ultra-luxurious villas with lavish amenities & personalized services
             </p>
@@ -317,7 +319,8 @@ const PropertiesSection = () => {
                     <div className="p-5 flex-grow flex flex-col bg-gradient-to-b from-white to-gray-50/70">
                       <div className="mb-1 flex items-center">
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold font-heading text-gray-800 text-left group-hover:text-[#a0936a] transition-colors duration-300">
+                          {/* Changed to font-subheading (Inter) with font-medium (500) */}
+                          <h3 className="text-xl font-medium font-subheading text-gray-800 text-left group-hover:text-[#a0936a] transition-colors duration-300">
                             {property.name}
                           </h3>
                         </div>

@@ -1,4 +1,3 @@
-// backend/routes/property.js
 const express = require('express');
 const router = express.Router();
 const Property = require('../models/Property');
@@ -43,7 +42,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
   try {
     const { 
       name, cityId, city, subplace, guests, rooms, baths, beds,
-      description, price, brochureLink, video, mapLink
+      description, priceMin, priceMax, brochureLink, video, mapLink
     } = req.body;
     
     // Parse amenities from JSON string - now supports dynamic amenities
@@ -74,7 +73,8 @@ router.post('/', upload.array('images', 10), async (req, res) => {
       baths: parseInt(baths),
       beds: parseInt(beds),
       description,
-      price: parseFloat(price),
+      priceMin: parseFloat(priceMin),
+      priceMax: parseFloat(priceMax),
       brochureLink,
       video,
       mapLink,
@@ -100,14 +100,14 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
     // Update text fields
     const fields = [
       'name', 'cityId', 'city', 'subplace', 'guests', 'rooms', 'baths', 'beds',
-      'description', 'price', 'brochureLink', 'video', 'mapLink', 'isActive'
+      'description', 'priceMin', 'priceMax', 'brochureLink', 'video', 'mapLink', 'isActive'
     ];
     
     fields.forEach(field => {
       if (req.body[field] !== undefined) {
         if (['guests', 'rooms', 'baths', 'beds'].includes(field)) {
           property[field] = parseInt(req.body[field]);
-        } else if (field === 'price') {
+        } else if (['priceMin', 'priceMax'].includes(field)) {
           property[field] = parseFloat(req.body[field]);
         } else if (field === 'isActive') {
           property[field] = req.body[field] === 'true';

@@ -172,9 +172,11 @@ const LocationPicker = () => {
           
           <div className="absolute inset-0 flex items-end z-30">
             <div className="p-4 w-full">
-              <h3 className="text-white text-lg font-bold font-heading mb-1">
+              {/* Changed from font-heading to font-subheading with font-medium for city names */}
+              <h3 className="text-white text-lg font-medium font-subheading mb-1">
                 {city.name}
               </h3>
+              {/* Regular text remains font-body with font-normal (default) */}
               <p className="text-white/90 text-xs font-body">
                 {city.showOnHome 
                   ? `Discover amazing places in ${city.name}`
@@ -217,8 +219,9 @@ const LocationPicker = () => {
             className="text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
-                Pick Your Location
+              {/* Main heading in Cinzel with all capitals and font-weight 400 */}
+              <h2 className="text-3xl md:text-4xl font-heading text-gray-800 text-left uppercase tracking-wide">
+                PICK YOUR LOCATION
               </h2>
               
               <motion.div 
@@ -256,6 +259,7 @@ const LocationPicker = () => {
                 </motion.button>
               </motion.div>
             </div>
+            {/* Regular text with Inter font-body with default 400 weight */}
             <p className="text-gray-600 font-body text-left mt-2 pl-0.5">
               It's time to travel and explore
             </p>

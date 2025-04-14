@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Globe, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const FeaturesSection = () => {
@@ -9,19 +8,19 @@ const FeaturesSection = () => {
   
   const features = [
     {
-      icon: <Zap className="h-10 w-10" />,
-      title: 'Exclusive Experiences',
-      subtitle: 'Handpicked villas for unforgettable stays'
+      imageSrc: '/features/1.png',
+      title: 'Superhost Assurance',
+      subtitle: "We're not just hosts, we're Superhosts. 5-star service & fast responses every single time."
     },
     {
-      icon: <Globe className="h-10 w-10" />,
-      title: 'Unmatched Service',
-      subtitle: 'Dedicated concierge & travel assistance'
+      imageSrc: '/features/2.png',
+      title: 'Handpicked Homes with Soul',
+      subtitle: 'Every property is scouted, styled, and soul-picked because mid-stays are not part of our playlist.'
     },
     {
-      icon: <DollarSign className="h-10 w-10" />,
-      title: 'Superior Guest Value',
-      subtitle: 'Prioritising safety, cleanliness & service'
+      imageSrc: '/features/3.png',
+      title: 'More Than a Stay, It is a Vibe',
+      subtitle: 'Cozy aesthetics, curated comfort, and an Insta-worthy vibe come standard.'
     }
   ];
 
@@ -64,11 +63,13 @@ const FeaturesSection = () => {
           variants={headerVariants}
           className="mb-12 text-left px-4"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-3 font-heading text-gray-800 text-left">
-            Why Choose <span className="text-[#a0936a]">Nivaas</span>
+          {/* Main heading in Cinzel, all uppercase */}
+          <h2 className="text-3xl md:text-4xl font-heading text-gray-800 text-left uppercase tracking-wide">
+            ✨ Why Choose <span className="text-[#a0936a]">Nivaas</span>
           </h2>
-          <p className="text-gray-600 font-body text-left pl-0.5">
-            Experience the difference with our premium services and amenities
+          {/* Subheading with font-body (Inter) with normal weight */}
+          <p className="text-gray-600 font-body text-left pl-0.5 mt-2 ">
+            Because cookie-cutter stays aren't our thing. At Nivaas, every stay is curated with comfort, soul, and a little bit of magic.
           </p>
         </motion.div>
         
@@ -79,12 +80,21 @@ const FeaturesSection = () => {
               <div className="h-full">
                 <div className="bg-white h-full p-6 rounded-xl border border-gray-200 flex flex-col">
                   <div className="flex items-start space-x-5 relative z-10">
-                    <div className="p-3 rounded-lg bg-[rgba(14,63,68,0.95)] flex-shrink-0">
-                      <div className="text-white">{feature.icon}</div>
+                    <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
+                      <img 
+                        src={feature.imageSrc} 
+                        alt={feature.title} 
+                        className="w-12 h-12 object-contain"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/48';
+                        }}
+                      />
                     </div>
                     
                     <div className="text-left">
-                      <h3 className="text-xl font-bold font-heading text-[#a0936a] mb-2 text-left">
+                      {/* Changed to font-subheading (Inter) with font-medium (500) */}
+                      <h3 className="text-xl font-medium font-subheading text-[#a0936a] mb-2 text-left">
                         {feature.title}
                       </h3>
                       <p className="text-gray-600 font-body text-left pl-0.5">{feature.subtitle}</p>
@@ -112,12 +122,21 @@ const FeaturesSection = () => {
                 <div key={index} className="w-full flex-shrink-0 px-2">
                   <div className="bg-white h-full p-5 rounded-xl border border-gray-200 flex flex-col">
                     <div className="flex items-start space-x-4 relative z-10">
-                      <div className="p-2 rounded-lg bg-[rgba(14,63,68,0.95)] flex-shrink-0">
-                        <div className="text-white">{feature.icon}</div>
+                      <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center">
+                        <img 
+                          src={feature.imageSrc} 
+                          alt={feature.title} 
+                          className="w-10 h-10 object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/40';
+                          }}
+                        />
                       </div>
                       
                       <div className="text-left">
-                        <h3 className="text-lg font-bold font-heading text-[#a0936a] mb-1 text-left">
+                        {/* Changed to font-subheading (Inter) with font-medium (500) */}
+                        <h3 className="text-lg font-medium font-subheading text-[#a0936a] mb-1 text-left">
                           {feature.title}
                         </h3>
                         <p className="text-gray-600 font-body text-left text-sm pl-0.5">{feature.subtitle}</p>

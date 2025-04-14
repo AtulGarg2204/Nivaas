@@ -23,8 +23,8 @@ const BlogDetail = () => {
   const [checkInDate, setCheckInDate] = useState('');
   const [checkOutDate, setCheckOutDate] = useState('');
   const [selectedProperty, setSelectedProperty] = useState('');
-  const [guests, setGuests] = useState(1);
-  const [children, setChildren] = useState(0);
+  const [guests, setGuests] = useState('');
+  const [children, setChildren] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   
@@ -33,7 +33,7 @@ const BlogDetail = () => {
   const primaryBtnText = "white";
   
   // Number of cards to display per view
-  const cardsPerView = 3;
+  const cardsPerView = 4; // Increased to show more cards in view
 
   // Navigation for things to do cards
   const handlePrevious = () => {
@@ -44,6 +44,17 @@ const BlogDetail = () => {
     setCurrentIndex(prev => 
       Math.min(thingsToDoData.length - cardsPerView, prev + 1)
     );
+  };
+
+  // Handle check-in date change and ensure check-out date is never before check-in
+  const handleCheckInDateChange = (e) => {
+    const newCheckInDate = e.target.value;
+    setCheckInDate(newCheckInDate);
+    
+    // If check-out date is before new check-in date, update it
+    if (checkOutDate && checkOutDate < newCheckInDate) {
+      setCheckOutDate(newCheckInDate);
+    }
   };
 
   // Form submission
@@ -219,7 +230,7 @@ const BlogDetail = () => {
     return (
       <div className="pt-20 min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 font-heading">Error</h2>
+          <h2 className="text-2xl font-medium font-heading mb-4">Error</h2>
           <p>{error || "Blog not found"}</p>
           <Link
             to="/"
@@ -235,60 +246,58 @@ const BlogDetail = () => {
   const backgroundImage = getBackgroundImage(blog);
   const blogImage = getBlogImage(blog);
   
-
   return (
     <div className="pt-0 min-h-screen bg-white">
-   {/* Full-width hero image merged with navbar - Make navbar transparent initially */}
-{/* Full-width hero image merged with navbar - Make navbar transparent initially */}
-<div className="relative w-full" style={{ height: "500px" }}>
-  {backgroundImage ? (
-    <img 
-      src={backgroundImage} 
-      alt={blog.title} 
-      className="w-full h-full object-cover"
-    />
-  ) : (
-    <div className="w-full h-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center">
-      <Compass className="w-16 h-16 text-white" />
-    </div>
-  )}
-  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-  <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 p-8 md:p-16 container mx-auto text-center">
-    <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 font-heading drop-shadow-sm">
-      {blog.title}
-    </h1>
-    <div className="flex items-center justify-center text-gray-200 text-sm md:text-base font-body space-x-4">
-      {blog.city && blog.city.cityName && (
-        <span className="flex items-center">
-          <MapPin size={16} className="mr-1" />
-          {blog.city.cityName}
-        </span>
-      )}
-      {(!blog.city || !blog.city.cityName) && (
-        <span className="flex items-center">
-          <MapPin size={16} className="mr-1" />
-          Travel Destination
-        </span>
-      )}
-      <span>
-        {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US', { 
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }) : ""}
-      </span>
-    </div>
-  </div>
-</div>
+      {/* Full-width hero image merged with navbar */}
+      <div className="relative w-full" style={{ height: "500px" }}>
+        {backgroundImage ? (
+          <img 
+            src={backgroundImage} 
+            alt={blog.title} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center">
+            <Compass className="w-16 h-16 text-white" />
+          </div>
+        )}
+        <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 p-8 md:p-16 container mx-auto text-center">
+          <h1 className="text-3xl md:text-5xl font-heading text-white mb-4 drop-shadow-sm">
+            {blog.title}
+          </h1>
+          <div className="flex items-center justify-center text-gray-200 text-sm md:text-base font-body space-x-4">
+            {blog.city && blog.city.cityName && (
+              <span className="flex items-center">
+                <MapPin size={16} className="mr-1" />
+                {blog.city.cityName}
+              </span>
+            )}
+            {(!blog.city || !blog.city.cityName) && (
+              <span className="flex items-center">
+                <MapPin size={16} className="mr-1" />
+                Travel Destination
+              </span>
+            )}
+            <span>
+              {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) : ""}
+            </span>
+          </div>
+        </div>
+      </div>
 
-      {/* Main Content with Left/Right Split - Increased vertical spacing with mt-16 */}
+      {/* Main Content with Left/Right Split */}
       <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mt-16">
         <div className="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8">
           {/* Left Column - 2/3 width */}
           <div className="lg:w-2/3">
             {/* About this destination */}
             <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6 font-heading text-left">
+              <h2 className="text-2xl font-heading uppercase tracking-wide mb-6 text-left">
                 About this Destination
               </h2>
               <div className="text-gray-700 font-body text-left leading-relaxed">
@@ -305,8 +314,8 @@ const BlogDetail = () => {
             {/* CKEditor Rich Text Content Section */}
             {blog.editorContent && (
               <div className="mb-12">
-                <h2 className="text-2xl font-bold mb-6 font-heading text-left">
-                  Text Editor Testing
+                <h2 className="text-2xl font-heading uppercase tracking-wide mb-6 text-left">
+                  Detailed Information
                 </h2>
                 <div 
                   className="prose prose-lg max-w-none font-body text-gray-700 text-left"
@@ -339,7 +348,7 @@ const BlogDetail = () => {
           {/* Right Column - 1/3 width */}
           <div className="lg:w-1/3">
             <div className="bg-white rounded-lg shadow-md p-8 sticky top-24 border border-gray-200">
-              <h2 className="text-xl font-bold mb-8 font-heading text-left">
+              <h2 className="text-xl font-medium font-subheading mb-8 text-left">
                 Get Assistance for Villa Search
               </h2>
               
@@ -348,44 +357,49 @@ const BlogDetail = () => {
                   <div>
                     <input
                       type="text"
-                      placeholder="FirstName"
+                      placeholder="First Name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded font-body"
+                      className="w-full p-3 border border-gray-300 rounded font-body text-left"
+                      style={{ textAlign: "left" }}
                     />
                   </div>
                   <div>
                     <input
                       type="text"
-                      placeholder="LastName"
+                      placeholder="Last Name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded font-body"
+                      className="w-full p-3 border border-gray-300 rounded font-body text-left"
+                      style={{ textAlign: "left" }}
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-500 font-body">Check in</span>
-                    <span className="text-sm text-gray-500 font-body">Check out</span>
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <input
-                        type="date"
+                        type="text"
+                        placeholder="Check in"
+                        onFocus={(e) => e.target.type = 'date'}
+                        onBlur={(e) => e.target.type = e.target.value ? 'date' : 'text'}
                         value={checkInDate}
-                        onChange={(e) => setCheckInDate(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded font-body"
+                        onChange={handleCheckInDateChange}
+                        className="w-full p-3 border border-gray-300 rounded font-body text-left"
                         required
                       />
                     </div>
                     <div>
                       <input
-                        type="date"
+                        type="text"
+                        placeholder="Check out"
+                        onFocus={(e) => e.target.type = 'date'}
+                        onBlur={(e) => e.target.type = e.target.value ? 'date' : 'text'}
                         value={checkOutDate}
                         onChange={(e) => setCheckOutDate(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded font-body"
+                        min={checkInDate || undefined}
+                        className="w-full p-3 border border-gray-300 rounded font-body text-left"
                         required
                       />
                     </div>
@@ -393,20 +407,20 @@ const BlogDetail = () => {
                 </div>
                 
                 <div>
-  <select
-    value={selectedProperty}
-    onChange={(e) => setSelectedProperty(e.target.value)}
-    className="w-full p-3 border border-gray-300 rounded font-body"
-    required
-  >
-    <option value="">Select Property</option>
-    {properties.map(property => (
-      <option key={property._id} value={property._id}>
-        {property.name} - {property.city}
-      </option>
-    ))}
-  </select>
-</div>
+                  <select
+                    value={selectedProperty}
+                    onChange={(e) => setSelectedProperty(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded font-body text-left"
+                    required
+                  >
+                    <option value="">Select Property</option>
+                    {properties.map(property => (
+                      <option key={property._id} value={property._id}>
+                        {property.name} - {property.city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -416,7 +430,7 @@ const BlogDetail = () => {
                       value={guests}
                       onChange={(e) => setGuests(e.target.value)}
                       min="1"
-                      className="w-full p-3 border border-gray-300 rounded font-body"
+                      className="w-full p-3 border border-gray-300 rounded font-body text-left"
                     />
                   </div>
                   <div>
@@ -426,7 +440,7 @@ const BlogDetail = () => {
                       value={children}
                       onChange={(e) => setChildren(e.target.value)}
                       min="0"
-                      className="w-full p-3 border border-gray-300 rounded font-body"
+                      className="w-full p-3 border border-gray-300 rounded font-body text-left"
                     />
                   </div>
                 </div>
@@ -460,7 +474,7 @@ const BlogDetail = () => {
         <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mb-16">
           <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8">
             <div className="text-left">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2 font-heading text-gray-800">
+              <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-gray-800">
                 Must Visit Places
               </h2>
               <p className="text-gray-600 font-body">
@@ -479,7 +493,7 @@ const BlogDetail = () => {
                 }`}
                 aria-label="Previous"
               >
-                <ChevronLeft size={20} />
+            
               </button>
               <button 
                 onClick={handleNext}
@@ -491,12 +505,12 @@ const BlogDetail = () => {
                 }`}
                 aria-label="Next"
               >
-                <ChevronRight size={20} />
+              
               </button>
             </div>
           </div>
           
-          {/* Horizontal scrolling cards */}
+          {/* Horizontal scrolling cards - matched to property card style */}
           <div className="relative overflow-hidden">
             <div 
               ref={scrollContainerRef}
@@ -509,11 +523,11 @@ const BlogDetail = () => {
               {thingsToDoData.map((thing, index) => (
                 <div 
                   key={thing._id || index} 
-                  className="flex-shrink-0 w-full md:w-1/3 px-1"
+                  className="flex-shrink-0 w-full md:w-1/4 px-1"
                 >
-                  <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 flex flex-col h-full transition-all duration-300 hover:shadow-xl">
+                  <div className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 flex flex-col h-full transition-transform hover:shadow-lg">
                     <div className="relative">
-                      <div className="aspect-[4/3] overflow-hidden">
+                      <div className="h-[280px] overflow-hidden">
                         {/* Gradient overlay on image */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-5 opacity-40 transition-opacity duration-300"></div>
                         
@@ -528,11 +542,7 @@ const BlogDetail = () => {
                           }}
                         />
                       </div>
-                      <div className="absolute top-3 left-3 z-20">
-                        <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full font-body shadow-lg">
-                          Must Visit
-                        </span>
-                      </div>
+                      
                       {thing.cityName && (
                         <div className="absolute top-3 right-3 z-20">
                           <span className="bg-white/90 backdrop-blur-sm text-amber-600 text-xs font-medium px-3 py-1 rounded-full font-body shadow-sm">
@@ -542,22 +552,13 @@ const BlogDetail = () => {
                       )}
                     </div>
                     
-                    <div className="p-5 flex-grow text-left">
-                      <div className="text-gray-800 text-lg font-bold font-heading mb-3">
+                    <div className="p-4 flex-grow text-left">
+                      <div className="text-gray-800 text-lg font-medium font-subheading mb-2">
                         {thing.heading || 'Unnamed Destination'}
                       </div>
-                      <p className="text-gray-600 text-sm font-body mb-4">
+                      <p className="text-gray-600 text-sm font-body h-10 overflow-hidden">
                         {thing.description || 'No description available'}
                       </p>
-                      
-                      <div className="mt-auto">
-                        <div className="inline-flex items-center text-sm font-medium text-amber-600 hover:text-amber-800 transition-colors group cursor-pointer">
-                          <span>Explore more</span>
-                          <svg className="ml-1 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -574,11 +575,11 @@ const BlogDetail = () => {
         </div>
       )}
 
-      {/* Properties Section - Keep as is but update styling */}
+      {/* Properties Section */}
       {properties.length > 0 && (
         <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mb-16">
           <div className="text-left mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2 font-heading text-gray-800">
+            <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-gray-800">
               Places to Stay
             </h2>
             <p className="text-gray-600 font-body">
@@ -586,13 +587,13 @@ const BlogDetail = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {properties.slice(0, 3).map((property, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {properties.slice(0, 4).map((property, index) => (
               <div 
                 key={property._id}
-                className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 flex flex-col h-full hover:shadow-xl transition-shadow duration-300"
+                className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 flex flex-col h-full hover:shadow-lg transition-all"
               >
-                <div className="relative aspect-video overflow-hidden">
+                <div className="relative h-[280px] overflow-hidden">
                   {property.images && property.images[0] ? (
                     <img 
                       src={typeof property.images[0] === 'string' ? property.images[0] : 
@@ -611,21 +612,17 @@ const BlogDetail = () => {
                   )}
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                  
-                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-md font-semibold text-sm text-amber-600 z-20">
-                    ₹{property.price}/night
-                  </div>
                 </div>
                 
-                <div className="p-5 flex-grow text-left">
-                  <h3 className="text-lg font-bold font-heading text-gray-800 mb-1">
+                <div className="p-4 flex-grow text-left">
+                  <h3 className="text-lg font-medium font-subheading text-gray-800 mb-1">
                     {property.name}
                   </h3>
-                  <p className="text-gray-600 text-sm font-body mb-4 flex items-center">
+                  <p className="text-gray-600 text-sm font-body mb-3 flex items-center">
                     <MapPin size={14} className="mr-1" /> {property.city}
                   </p>
                   
-                  <div className="mt-auto pt-4 border-t border-gray-100">
+                  <div className="mt-auto pt-3 border-t border-gray-100">
                     <Link
                       to={`/property/${property._id}`}
                       className="inline-flex items-center text-sm font-medium text-amber-600 hover:text-amber-800 transition-colors group"
@@ -640,8 +637,6 @@ const BlogDetail = () => {
               </div>
             ))}
           </div>
-          
-        
         </div>
       )}
 

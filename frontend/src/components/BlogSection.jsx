@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Sparkles, Compass } from "lucide-react";
+import { ChevronLeft, ChevronRight,Compass } from "lucide-react";
 import { motion } from "framer-motion";
 
 const BlogSection = () => {
@@ -94,7 +94,7 @@ const BlogSection = () => {
 
   if (loading) {
     return (
-      <div className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
+      <div id="blogs-section" className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
         <div className="container mx-auto px-8 md:px-12 lg:px-16">
           <div className="flex justify-between items-start mb-10 px-4">
             <div className="max-w-lg text-left">
@@ -122,7 +122,7 @@ const BlogSection = () => {
 
   if (error) {
     return (
-      <div className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
+      <div id="blogs-section" className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden">
         <div className="container mx-auto px-8 md:px-12 lg:px-16">
           <div className="text-left text-red-500 font-body p-6 bg-red-50 border border-red-200 rounded-lg shadow-sm px-4">
             <p className="flex items-center">
@@ -147,6 +147,7 @@ const BlogSection = () => {
   
   return (
     <div 
+      id="blogs-section"
       ref={sectionRef}
       className="py-16 bg-gradient-to-b from-gray-50/80 to-white relative overflow-hidden"
     >
@@ -163,8 +164,9 @@ const BlogSection = () => {
             className="max-w-lg text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-800 drop-shadow-sm">
-                Blogs
+              {/* Main heading in Cinzel, all uppercase */}
+              <h2 className="text-3xl md:text-4xl font-heading text-gray-800 uppercase tracking-wide drop-shadow-sm">
+                BLOGS
               </h2>
               
               <motion.div 
@@ -258,7 +260,6 @@ const BlogSection = () => {
               className="flex flex-col"
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
             >
-              {/* Date removed */}
               <Link to={`/blog/${blog._id}`}>
                 <div className="bg-white rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.1)] border border-gray-100/80 flex flex-col h-full transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
                   <div className="relative">
@@ -281,23 +282,19 @@ const BlogSection = () => {
                         </div>
                       )}
                     </div>
-                    <div className="absolute top-3 left-3 z-30">
-                      {blog.mustVisitThings && blog.mustVisitThings.length > 0 && (
-                        <span className="bg-[rgba(14,63,68,0.95)] text-white text-xs font-bold px-3 py-1 rounded-full font-body shadow-lg flex items-center gap-1">
-                          <Sparkles size={12} />
-                          Must Read
-                        </span>
-                      )}
-                    </div>
+                  
                   </div>
                   
-                  <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left">
-                    <div className="text-gray-800 text-lg font-bold font-heading mb-3">
+                  <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left flex flex-col">
+                    {/* Changed to font-subheading (Inter) with font-medium (500) */}
+                    <div className="text-gray-800 text-lg font-medium font-subheading mb-2">
                       {blog.title || 'Unnamed Blog'}
                     </div>
-                    <p className="text-gray-600 text-sm font-body line-clamp-3 mb-4">
+                    
+                    {/* Fixed height for description with single line only */}
+                    <div className="h-6 overflow-hidden text-gray-600 text-sm font-body mb-4">
                       {blog.description || 'No description available'}
-                    </p>
+                    </div>
                     
                     <div className="mt-auto">
                       <div className="inline-flex items-center text-sm font-medium text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] transition-colors group cursor-pointer">
@@ -314,15 +311,6 @@ const BlogSection = () => {
           ))}
         </motion.div>
       </div>
-      
-      <style jsx="true">{`
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;  
-          overflow: hidden;
-        }
-      `}</style>
     </div>
   );
 };

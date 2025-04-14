@@ -42,7 +42,7 @@ const ReviewsSection = () => {
       case 'makemytrip':
         return '/makemytrip.png';
       case 'goibibo':
-        return '/airbnb.png';
+        return '/goibibo.png';
       case 'google':
         return '/google.png';
       default:
@@ -404,7 +404,7 @@ const ReviewsSection = () => {
           >
             <div className="flex items-center justify-between">
               <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
-                Happy Guest <span className="text-[#a0936a]">Stories</span>
+                HAPPY GUEST <span className="text-[#a0936a]">STORIES</span>
               </h2>
               
               {/* Mobile navigation arrows */}

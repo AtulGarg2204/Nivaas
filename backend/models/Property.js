@@ -1,4 +1,3 @@
-// backend/models/Property.js
 const mongoose = require('mongoose');
 
 const AmenitySchema = new mongoose.Schema({
@@ -30,7 +29,6 @@ const ReviewSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String, // Base64 encoded image data
-
   },
   rating: {
     type: Number,
@@ -107,7 +105,12 @@ const PropertySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  price: {
+  // Replacing single price with price range
+  priceMin: {
+    type: Number,
+    required: true
+  },
+  priceMax: {
     type: Number,
     required: true
   },

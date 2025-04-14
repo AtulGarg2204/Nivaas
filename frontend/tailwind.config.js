@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'heading': ['Cinzel', '"Palatino Linotype"', 'serif'],
+        'heading': ['Cinzel', '"Palatino Linotype"', 'sans-serif'],
         'subheading': ['Inter', 'sans-serif'],
         'body': ['Inter', 'sans-serif'],
         'poppins': ['Poppins', '"Poppins Fallback"', 'sans-serif'], // Kept for backward compatibility

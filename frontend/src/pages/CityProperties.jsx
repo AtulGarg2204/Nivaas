@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -183,12 +181,13 @@ const CityProperties = () => {
         return false;
       }
       
-      // Apply price filters
-      if (filters.minPrice && property.price < parseFloat(filters.minPrice)) {
+      // Apply price filters with the new price range logic
+      // Check if property's price range overlaps with filter's price range
+      if (filters.minPrice && property.priceMax < parseFloat(filters.minPrice)) {
         return false;
       }
       
-      if (filters.maxPrice && property.price > parseFloat(filters.maxPrice)) {
+      if (filters.maxPrice && property.priceMin > parseFloat(filters.maxPrice)) {
         return false;
       }
       
@@ -212,7 +211,7 @@ const CityProperties = () => {
     <>
       {/* Price Range Filter */}
       <div className="mb-6">
-        <h3 className="text-md font-bold mb-3 font-heading">Price Per Night</h3>
+        <h3 className="text-md font-medium font-subheading mb-3">Price Per Night</h3>
         <div className="mb-2 flex justify-between">
           <span className="font-body text-sm">₹{priceRange[0].toLocaleString()}</span>
           <span className="font-body text-sm">₹{priceRange[1].toLocaleString()}</span>
@@ -254,7 +253,7 @@ const CityProperties = () => {
 
       {/* Bedrooms Filter */}
       <div className="mb-6">
-        <h3 className="text-md font-bold mb-3 font-heading">Bedrooms</h3>
+        <h3 className="text-md font-medium font-subheading mb-3">Bedrooms</h3>
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((bhk) => (
             <button
@@ -274,7 +273,7 @@ const CityProperties = () => {
 
       {/* Guest Count Filter */}
       <div className="mb-6">
-        <h3 className="text-md font-bold mb-3 font-heading">Guests</h3>
+        <h3 className="text-md font-medium font-subheading mb-3">Guests</h3>
         <select
           name="guests"
           value={filters.guests}
@@ -306,7 +305,7 @@ const CityProperties = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 font-heading">Error</h2>
+          <h2 className="text-2xl font-medium font-subheading mb-4">Error</h2>
           <p>{error}</p>
           <Link to="/" className="mt-4 inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body">
             Return to Home
@@ -320,7 +319,7 @@ const CityProperties = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 font-heading">City Not Found</h2>
+          <h2 className="text-2xl font-medium font-subheading mb-4">City Not Found</h2>
           <p>The city you are looking for does not exist.</p>
           <Link to="/" className="mt-4 inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body">
             Return to Home
@@ -349,10 +348,10 @@ const CityProperties = () => {
         <div className="absolute inset-0 bg-black/40"></div> {/* Slightly darker overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-heading">{city.name}</h1>
-            <div className="bg-[rgba(14,63,68,0.95)] text-white text-sm font-bold px-4 py-1 rounded-full font-body inline-block">
-  Discover amazing places in {city.name}
-</div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading uppercase tracking-wide mb-4">{city.name}</h1>
+            <div className="bg-[rgba(14,63,68,0.95)] text-white text-sm font-medium px-4 py-1 rounded-full font-body inline-block">
+              Discover amazing places in {city.name}
+            </div>
           </div>
         </div>
       </div>
@@ -366,7 +365,7 @@ const CityProperties = () => {
             {properties.length === 0 ? (
               // Full width "No properties found" when there are no properties
               <div className="bg-white rounded-lg p-8 shadow-md text-center">
-                <h3 className="text-xl font-bold mb-3 font-heading">No Properties Found</h3>
+                <h3 className="text-xl font-medium font-subheading mb-3">No Properties Found</h3>
                 <p className="text-gray-600 font-body mb-4">
                   There are currently no properties available in this location.
                 </p>
@@ -375,7 +374,7 @@ const CityProperties = () => {
                 </Link>
               </div>
             ) : (
-              <div className="flex flex-col lg:flex-row gap-8 relative">
+              <div className="flex flex-col lg:flex-row gap-8 relative" style={{ minHeight: "800px" }}>
                 {/* Mobile Filter Button (fixed at bottom) */}
                 <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center lg:hidden">
                   <button
@@ -408,7 +407,7 @@ const CityProperties = () => {
                       <div className="pt-5">
                         {/* Mobile Filter Header */}
                         <div className="flex items-center justify-between mb-6">
-                          <h2 className="text-xl font-bold font-heading">Filter & Sort</h2>
+                          <h2 className="text-xl font-medium font-subheading">Filter & Sort</h2>
                           <button 
                             onClick={() => setShowFilterModal(false)}
                             className="text-gray-500"
@@ -445,31 +444,32 @@ const CityProperties = () => {
                 )}
 
                 <div className="lg:w-1/4 hidden lg:block">
-  <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center">
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-        </svg>
-        <h2 className="text-lg font-bold font-heading">Filters</h2>
-      </div>
-      <button 
-        onClick={clearAllFilters}
-        className="text-sm text-[#a0936a] hover:text-[rgba(14,63,68,0.95)] font-body"
-      >
-        Clear All
-      </button>
-    </div>
+                  <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        <h2 className="text-lg font-medium font-subheading">Filters</h2>
+                      </div>
+                      <button 
+                        onClick={clearAllFilters}
+                        className="text-sm text-[#a0936a] hover:text-[rgba(14,63,68,0.95)] font-body"
+                      >
+                        Clear All
+                      </button>
+                    </div>
 
-    <FiltersContent />
-  </div>
-</div>
+                    <FiltersContent />
+                  </div>
+                </div>
+                
                 {/* Main Content - Right Side (Scrollable) */}
                 <div className="lg:w-3/4 lg:overflow-y-auto">
                   {/* Properties List Section */}
                   {filteredProperties.length > 0 ? (
                     <div className="mb-12">
-                      <h2 className="text-2xl text-left font-bold font-heading text-gray-800 mb-6 pl-4">Properties in {city.name}</h2>
+                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-gray-800 mb-6 pl-4">Properties in {city.name}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 px-4">
                         {filteredProperties.map((property) => (
                           <Link 
@@ -493,38 +493,39 @@ const CityProperties = () => {
                                     </svg>
                                   </div>
                                 )}
-                                {/* Price tag removed as requested */}
+                                
+                            
                               </div>
                               
                               {/* Property Details below image */}
                               <div className="p-4">
                                 <div className="mb-2">
-                                  <h3 className="text-lg text-left font-bold text-gray-800 font-heading">{property.name}</h3>
+                                  <h3 className="text-lg text-left font-medium font-subheading text-gray-800">{property.name}</h3>
                                   <div className="text-gray-600 text-left text-sm font-body">
                                     {property.subplace && `${property.subplace}, `}{city.name}
                                   </div>
                                 </div>
                                 
                                 <div className="flex flex-wrap gap-3 mb-2">
-                                  <div className="flex items-center text-xs text-gray-600">
+                                  <div className="flex items-center text-xs text-gray-600 font-body">
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
                                     {property.guests} guests
                                   </div>
-                                  <div className="flex items-center text-xs text-gray-600">
+                                  <div className="flex items-center text-xs text-gray-600 font-body">
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                                     </svg>
                                     {property.rooms} rooms
                                   </div>
-                                  <div className="flex items-center text-xs text-gray-600">
+                                  <div className="flex items-center text-xs text-gray-600 font-body">
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path>
                                     </svg>
                                     {property.beds} beds
                                   </div>
-                                  <div className="flex items-center text-xs text-gray-600">
+                                  <div className="flex items-center text-xs text-gray-600 font-body">
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                                     </svg>
@@ -552,7 +553,7 @@ const CityProperties = () => {
                     </div>
                   ) : (
                     <div className="bg-white rounded-lg p-8 shadow-md text-center mb-12">
-                      <h3 className="text-xl font-bold mb-3 font-heading">No Properties Found</h3>
+                      <h3 className="text-xl font-medium font-subheading mb-3">No Properties Found</h3>
                       <p className="text-gray-600 font-body mb-4">
                         No properties match your current filters. Please try adjusting your search criteria.
                       </p>
@@ -568,7 +569,7 @@ const CityProperties = () => {
                   {/* The Unexplored Section with Blogs - Now adjusted to match property cards */}
                   {blogs.length > 0 && (
                     <div className="px-4">
-                      <h2 className="text-2xl text-left font-bold font-heading text-gray-800 mb-6">The Unexplored {city.name}</h2>
+                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-gray-800 mb-6">The Unexplored {city.name}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                         {blogs.map((blog) => (
                           <Link 
@@ -587,7 +588,7 @@ const CityProperties = () => {
                               ) : (
                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                                   <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                                   </svg>
                                 </div>
                               )}
@@ -595,7 +596,7 @@ const CityProperties = () => {
                             </div>
                             {/* Blog Content */}
                             <div className="p-4">
-                              <h3 className="text-lg font-bold mb-2 font-heading text-gray-800">{blog.title}</h3>
+                              <h3 className="text-lg font-medium font-subheading mb-2 text-gray-800">{blog.title}</h3>
                               <p className="text-gray-600 text-sm font-body line-clamp-2 mb-3">{blog.description}</p>
                               
                               <div className="flex justify-between items-center pt-2 border-t border-gray-100">
