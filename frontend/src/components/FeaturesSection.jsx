@@ -64,7 +64,7 @@ const FeaturesSection = () => {
           className="mb-12 text-left px-4"
         >
           {/* Main heading in Cinzel, all uppercase */}
-          <h2 className="text-3xl md:text-4xl font-heading text-gray-800 text-left uppercase tracking-wide">
+          <h2 className="text-3xl md:text-4xl font-heading text-[#13130F] text-left uppercase tracking-wide">
             ✨ Why Choose <span className="text-[#a0936a]">Nivaas</span>
           </h2>
           {/* Subheading with font-body (Inter) with normal weight */}

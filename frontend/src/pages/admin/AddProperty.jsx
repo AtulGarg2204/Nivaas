@@ -39,7 +39,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
     userName: '',
     rating: 5,
     description: '',
-    source: 'direct', // Default to 'direct'
+    source: '', // Default to 'direct'
     isActive: true
   });
   const [profilePicture, setProfilePicture] = useState(null);
@@ -313,13 +313,24 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
     }
   };
 
-  // Review-related functions
   const handleReviewChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setReviewFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    // Special handling for the source dropdown
+    if (name === 'source') {
+      // We always update the state, even if the value hasn't changed
+      // This ensures the UI is responsive
+      setReviewFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    } else {
+      // Normal handling for other fields
+      setReviewFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
   };
 
   const handleProfilePictureChange = (e) => {
@@ -345,7 +356,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
       userName: review.userName,
       rating: review.rating,
       description: review.description,
-      source: review.source || 'direct', // Set source with fallback
+      source: review.source || '', // Set source with fallback
       isActive: review.isActive
     });
     setProfilePreview(review.profilePicture);
@@ -418,7 +429,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
         userName: '',
         rating: 5,
         description: '',
-        source: 'direct',
+        source: '',
         isActive: true
       });
       setProfilePicture(null);
@@ -502,7 +513,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
       userName: '',
       rating: 5,
       description: '',
-      source: 'direct',
+      source: '',
       isActive: true
     });
     setProfilePicture(null);
@@ -887,7 +898,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
               <button
                 type="button"
                 onClick={handleReset}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-md mr-3 font-body"
+                className="bg-gray-300 hover:bg-gray-400 text-[#13130F] px-5 py-2 rounded-md mr-3 font-body"
               >
                 Cancel
               </button>
@@ -1013,18 +1024,19 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
                         Review Source *
                       </label>
                       <select
-                        name="source"
-                        value={reviewFormData.source}
-                        onChange={handleReviewChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        {reviewSources.map((source) => (
-                          <option key={source.value} value={source.value}>
-                            {source.label}
-                          </option>
-                        ))}
-                      </select>
+  name="source"
+  value={reviewFormData.source}
+  onChange={handleReviewChange}
+  required
+  className="w-full px-4 py-2 border border-gray-300 rounded-md font-body focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+>
+  <option value="">Select a source</option>
+  {reviewSources.map((source) => (
+    <option key={source.value} value={source.value}>
+      {source.label}
+    </option>
+  ))}
+</select>
                     </div>
                     
                     {/* Active Status */}
@@ -1068,14 +1080,14 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
                             userName: '',
                             rating: 5,
                             description: '',
-                            source: 'direct',
+                            source: '',
                             isActive: true
                           });
                           setProfilePicture(null);
                           setProfilePreview('');
                           setEditingReviewId(null);
                         }}
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md mr-3 font-body text-sm"
+                        className="bg-gray-300 hover:bg-gray-400 text-[#13130F] px-4 py-2 rounded-md mr-3 font-body text-sm"
                       >
                         Cancel
                       </button>
@@ -1151,7 +1163,7 @@ const AddProperty = ({ editingProperty = null, onEditComplete = () => {} }) => {
                                   </span>
                                   <span className={`ml-2 ${getSourceColor(review.source)}`}>
                                     <i className={`${getSourceIcon(review.source)} mr-1`}></i>
-                                    {reviewSources.find(s => s.value === review.source)?.label || 'Direct'}
+                                    {reviewSources.find(s => s.value === review.source)?.label || ''}
                                   </span>
                                 </div>
                                 <p className="mt-2 text-gray-700 font-body">{review.description}</p>

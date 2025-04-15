@@ -262,7 +262,7 @@ const AdminPanel = () => {
         } md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col`}
       >
         <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold text-gray-800 font-heading">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[#13130F] font-heading">Admin Dashboard</h1>
         </div>
         
         <div className="flex-1 overflow-y-auto py-4">
@@ -323,7 +323,7 @@ const AdminPanel = () => {
         <div className="p-6 md:p-8 min-h-screen">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="border-b pb-4 mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 font-heading">
+              <h2 className="text-2xl font-bold text-[#13130F] font-heading">
                 {navItems.find(item => item.id === activeSection)?.title || 'Dashboard'}
                 {' > '}
                 {navItems

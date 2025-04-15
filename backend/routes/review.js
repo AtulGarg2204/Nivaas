@@ -82,7 +82,7 @@ router.post('/', upload.single('profilePicture'), async (req, res) => {
       rating: parseInt(rating),
       description,
       profilePicture,
-      source: source || 'direct',
+      source: source || '',
       isActive: isActive === 'true' || isActive === true
     });
     

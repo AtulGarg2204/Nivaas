@@ -29,7 +29,7 @@ const BlogDetail = () => {
   const [submitMessage, setSubmitMessage] = useState('');
   
   // Custom theme colors - matching property detail
-  const primaryBtnBg = "rgba(14,63,68,0.95)";
+  const primaryBtnBg = "#ad8b3a";
   const primaryBtnText = "white";
   
   // Number of cards to display per view
@@ -221,7 +221,7 @@ const BlogDetail = () => {
   if (loading) {
     return (
       <div className="pt-20 min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ad8b3a]"></div>
       </div>
     );
   }
@@ -234,7 +234,7 @@ const BlogDetail = () => {
           <p>{error || "Blog not found"}</p>
           <Link
             to="/"
-            className="mt-4 inline-block bg-amber-500 text-white py-2 px-4 rounded-md font-body"
+            className="mt-4 inline-block bg-[#ad8b3a] text-white py-2 px-4 rounded-md font-body"
           >
             Return to Home
           </Link>
@@ -247,9 +247,10 @@ const BlogDetail = () => {
   const blogImage = getBlogImage(blog);
   
   return (
-    <div className="pt-0 min-h-screen bg-white">
-      {/* Full-width hero image merged with navbar */}
-      <div className="relative w-full" style={{ height: "500px" }}>
+    <div className="pt-28 min-h-screen bg-white"> {/* Added pt-28 to create space from navbar */}
+    {/* Container with left/right spacing for hero image */}
+    <div className="container mx-auto px-8 md:px-16 lg:px-24">
+      <div className="relative w-full rounded-lg overflow-hidden" style={{ height: "500px" }}>
         {backgroundImage ? (
           <img 
             src={backgroundImage} 
@@ -289,6 +290,7 @@ const BlogDetail = () => {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Main Content with Left/Right Split */}
       <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mt-16">
@@ -474,7 +476,7 @@ const BlogDetail = () => {
         <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mb-16">
           <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8">
             <div className="text-left">
-              <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-gray-800">
+              <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-[#13130F]">
                 Must Visit Places
               </h2>
               <p className="text-gray-600 font-body">
@@ -489,7 +491,7 @@ const BlogDetail = () => {
                 className={`p-2 rounded-full border shadow-sm ${
                   currentIndex === 0 
                     ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                    : 'text-amber-600 border-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600 transition-all duration-300'
+                    : 'text-[#ad8b3a] border-amber-300 hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
                 }`}
                 aria-label="Previous"
               >
@@ -501,7 +503,7 @@ const BlogDetail = () => {
                 className={`p-2 rounded-full border shadow-sm ${
                   currentIndex + cardsPerView >= thingsToDoData.length 
                     ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                    : 'text-amber-600 border-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600 transition-all duration-300'
+                    : 'text-[#ad8b3a] border-amber-300 hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
                 }`}
                 aria-label="Next"
               >
@@ -545,7 +547,7 @@ const BlogDetail = () => {
                       
                       {thing.cityName && (
                         <div className="absolute top-3 right-3 z-20">
-                          <span className="bg-white/90 backdrop-blur-sm text-amber-600 text-xs font-medium px-3 py-1 rounded-full font-body shadow-sm">
+                          <span className="bg-white/90 backdrop-blur-sm text-[#ad8b3a] text-xs font-medium px-3 py-1 rounded-full font-body shadow-sm">
                             {thing.cityName}
                           </span>
                         </div>
@@ -553,7 +555,7 @@ const BlogDetail = () => {
                     </div>
                     
                     <div className="p-4 flex-grow text-left">
-                      <div className="text-gray-800 text-lg font-medium font-subheading mb-2">
+                      <div className="text-[#13130F] text-lg font-medium font-subheading mb-2">
                         {thing.heading || 'Unnamed Destination'}
                       </div>
                       <p className="text-gray-600 text-sm font-body h-10 overflow-hidden">
@@ -579,7 +581,7 @@ const BlogDetail = () => {
       {properties.length > 0 && (
         <div className="container mx-auto px-8 md:px-16 lg:px-24 py-8 mb-16">
           <div className="text-left mb-8">
-            <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-gray-800">
+            <h2 className="text-2xl font-heading uppercase tracking-wide mb-2 text-[#13130F]">
               Places to Stay
             </h2>
             <p className="text-gray-600 font-body">
@@ -615,7 +617,7 @@ const BlogDetail = () => {
                 </div>
                 
                 <div className="p-4 flex-grow text-left">
-                  <h3 className="text-lg font-medium font-subheading text-gray-800 mb-1">
+                  <h3 className="text-lg font-medium font-subheading text-[#13130F] mb-1">
                     {property.name}
                   </h3>
                   <p className="text-gray-600 text-sm font-body mb-3 flex items-center">
@@ -625,7 +627,7 @@ const BlogDetail = () => {
                   <div className="mt-auto pt-3 border-t border-gray-100">
                     <Link
                       to={`/property/${property._id}`}
-                      className="inline-flex items-center text-sm font-medium text-amber-600 hover:text-amber-800 transition-colors group"
+                      className="inline-flex items-center text-sm font-medium text-[#ad8b3a] hover:text-amber-800 transition-colors group"
                     >
                       <span>View Details</span>
                       <svg className="ml-1 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

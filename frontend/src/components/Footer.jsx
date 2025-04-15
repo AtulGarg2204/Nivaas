@@ -6,30 +6,44 @@ import logo from '../assets/logo_nivaas.png';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [cities, setCities] = useState([]);
+  const [topProperties, setTopProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    const fetchCities = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/cities`);
-        // Sort by created date (newest first) and take top 4
-        const sortedCities = res.data
+        // Fetch both cities and properties in parallel
+        const [citiesRes, propertiesRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/api/cities`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/properties`)
+        ]);
+        
+        // Filter and sort cities
+        const sortedCities = citiesRes.data
           .filter(city => city.isActive)
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           .slice(0, 5);
         setCities(sortedCities);
+        
+        // Filter and sort properties by creation date (oldest first)
+        const sortedProperties = propertiesRes.data
+          .filter(property => property.isActive)
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          .slice(0, 5);
+        setTopProperties(sortedProperties);
+        
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching cities for footer:', error);
+        console.error('Error fetching data for footer:', error);
         setLoading(false);
       }
     };
 
-    fetchCities();
+    fetchData();
   }, []);
   
   return (
-    <footer className="bg-[#0e3f44] text-white">
+    <footer className="bg-[#13140f] text-white">
       <div className="container mx-auto py-12">
         <div className="px-6 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
@@ -95,31 +109,32 @@ const Footer = () => {
               )}
             </div>
 
-            {/* Column 3: Company with Privacy Policy and Terms - Now taking 3 of 12 columns */}
+            {/* Column 3: Top Rated Properties (replacing Company section) */}
             <div className="text-left md:col-span-3">
-              <h3 className="text-lg font-medium font-subheading mb-3 text-white">Company</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="/about" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/blogs" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
-                    Blogs
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="text-gray-300 hover:text-white transition-colors font-body font-normal">
-                    Terms & Conditions
-                  </Link>
-                </li>
-              </ul>
+              <h3 className="text-lg font-medium font-subheading mb-3 text-white">Top Rated Properties</h3>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((item) => (
+                    <div key={item} className="h-5 bg-gray-700/50 rounded w-36 animate-pulse"></div>
+                  ))}
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {topProperties.map((property) => (
+                    <li key={property._id}>
+                      <Link 
+                        to={`/property/${property._id}`} 
+                        className="text-gray-300 hover:text-white transition-colors font-body font-normal"
+                      >
+                        {property.name}
+                      </Link>
+                    </li>
+                  ))}
+                  {topProperties.length === 0 && (
+                    <li className="text-gray-400">No properties available</li>
+                  )}
+                </ul>
+              )}
             </div>
           </div>
         </div>
@@ -136,25 +151,31 @@ const Footer = () => {
             <div className="mt-4 md:mt-0 flex items-center">
               <span className="text-gray-400 text-sm font-body font-light mr-4">Find us on</span>
               <div className="flex space-x-4">
-                {/* Airbnb Icon */}
+                {/* Airbnb Image */}
                 <a href="https://airbnb.com" target="_blank" rel="noopener noreferrer" aria-label="Airbnb">
-                  <svg className="w-6 h-6 text-gray-400 hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.0001 2C13.2501 2 14.2589 2.97471 14.2591 4.17547C14.2591 5.3764 13.2501 6.35095 12.0001 6.35095C10.7501 6.35095 9.74107 5.3764 9.74107 4.17547C9.74107 2.97471 10.7501 2 12.0001 2ZM12.0001 13.9163C11.7189 13.9163 11.4051 13.8159 11.1245 13.6496C8.26339 12.0696 5.4383 8.46891 5.4383 5.20687C5.4383 2.96551 7.20411 1.15424 9.38545 1.15424C10.3256 1.15424 11.2404 1.52514 12.0001 2.10958C12.7599 1.52498 13.6745 1.15424 14.6147 1.15424C16.7961 1.15424 18.5619 2.96551 18.5619 5.20687C18.5619 8.47342 15.7369 12.0696 12.8756 13.6496C12.5951 13.8159 12.2814 13.9163 12.0001 13.9163ZM18.2275 14.8084C18.4315 14.6754 18.6777 14.6052 18.9296 14.6052C19.1813 14.6052 19.4277 14.6754 19.6315 14.8084C22.4461 16.7433 24 18.6163 24 20.8884C24 22.9514 22.2342 24 20.1428 24C19.0292 24 18.0226 23.7311 17.1483 23.2162L12.005 20.4377L6.85172 23.2162C5.97741 23.7311 4.9708 24 3.85718 24C1.76584 24 0 22.9514 0 20.8884C0 18.6163 1.55389 16.7433 4.36848 14.8083C4.57227 14.6753 4.81875 14.6051 5.07044 14.6051C5.3223 14.6051 5.56861 14.6753 5.77241 14.8083C5.97621 14.9414 6.13695 15.1271 6.23286 15.3456C6.32878 15.564 6.35546 15.8055 6.30905 16.0371C6.26265 16.2687 6.14548 16.4795 5.97386 16.6393C3.97266 18.0095 2.67857 19.4447 2.67857 20.8884C2.67857 21.9366 3.41518 22.5 3.85718 22.5C4.56027 22.5 5.23304 22.308 5.79134 21.9799L11.2649 19.0335C11.4989 18.8999 11.7625 18.8289 12.0301 18.8289C12.2977 18.8289 12.5612 18.8999 12.7952 19.0335L18.2687 21.9799C18.827 22.308 19.3873 22.5 20.1428 22.5C20.5848 22.5 21.3214 21.9366 21.3214 20.8884C21.3214 19.4447 20.0273 18.0095 18.0261 16.6393C17.8545 16.4795 17.7373 16.2687 17.6909 16.0371C17.6445 15.8055 17.6712 15.564 17.7671 15.3456C17.863 15.1271 18.0238 14.9414 18.2275 14.8084Z"/>
-                  </svg>
+                  <img 
+                    src="/airbnb.png" 
+                    alt="Airbnb" 
+                    className="w-6 h-6 object-contain filter brightness-75 hover:brightness-100 transition-all" 
+                  />
                 </a>
                 
-                {/* MakeMyTrip Icon */}
+                {/* MakeMyTrip Image */}
                 <a href="https://makemytrip.com" target="_blank" rel="noopener noreferrer" aria-label="MakeMyTrip">
-                  <svg className="w-6 h-6 text-gray-400 hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.1739 0H4.82609C2.1604 0 0 2.1604 0 4.82609V19.1739C0 21.8396 2.1604 24 4.82609 24H19.1739C21.8396 24 24 21.8396 24 19.1739V4.82609C24 2.1604 21.8396 0 19.1739 0ZM12 17.8019C7.84716 17.8019 4.41507 14.5728 4.41507 10.6087C4.41507 6.64454 7.84716 3.41553 12 3.41553C16.1528 3.41553 19.5849 6.64454 19.5849 10.6087C19.5849 14.5728 16.1528 17.8019 12 17.8019ZM12 6.13043C9.26211 6.13043 7.13043 8.15342 7.13043 10.6087C7.13043 13.0639 9.26211 15.087 12 15.087C14.7379 15.087 16.8696 13.0639 16.8696 10.6087C16.8696 8.15342 14.7379 6.13043 12 6.13043ZM12 13.0435C10.5646 13.0435 9.3913 11.9903 9.3913 10.6087C9.3913 9.22702 10.5646 8.17391 12 8.17391C13.4354 8.17391 14.6087 9.22702 14.6087 10.6087C14.6087 11.9903 13.4354 13.0435 12 13.0435Z"/>
-                  </svg>
+                  <img 
+                    src="/makemytrip.png" 
+                    alt="MakeMyTrip" 
+                    className="w-6 h-6 object-contain filter brightness-75 hover:brightness-100 transition-all" 
+                  />
                 </a>
                 
-                {/* Goibibo Icon */}
+                {/* Goibibo Image */}
                 <a href="https://goibibo.com" target="_blank" rel="noopener noreferrer" aria-label="Goibibo">
-                  <svg className="w-6 h-6 text-gray-400 hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM15 6.5C15 7.33 14.33 8 13.5 8C12.67 8 12 7.33 12 6.5C12 5.67 12.67 5 13.5 5C14.33 5 15 5.67 15 6.5ZM9 6.5C9 7.33 8.33 8 7.5 8C6.67 8 6 7.33 6 6.5C6 5.67 6.67 5 7.5 5C8.33 5 9 5.67 9 6.5ZM12 18C9.24 18 7 15.76 7 13H9C9 14.66 10.34 16 12 16C13.66 16 15 14.66 15 13H17C17 15.76 14.76 18 12 18Z"/>
-                  </svg>
+                  <img 
+                    src="/goibibo-remove.png" 
+                    alt="Goibibo" 
+                    className="w-6 h-6 object-contain filter brightness-75 hover:brightness-100 transition-all" 
+                  />
                 </a>
               </div>
             </div>

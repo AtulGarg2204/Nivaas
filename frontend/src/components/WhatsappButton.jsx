@@ -16,7 +16,7 @@ const WhatsAppButton = () => {
       onClick={handleWhatsAppClick}
     >
       {showTooltip && (
-        <div className="absolute bottom-full right-0 mb-2 bg-white text-gray-800 shadow-lg rounded-lg px-4 py-2 text-sm whitespace-nowrap font-medium">
+        <div className="absolute bottom-full right-0 mb-2 bg-white text-[#13130F] shadow-lg rounded-lg px-4 py-2 text-sm whitespace-nowrap font-medium">
           Chat with us on WhatsApp
           <div className="absolute top-full right-4 transform -translate-x-1/2 -translate-y-1/2 rotate-45 w-3 h-3 bg-white"></div>
         </div>

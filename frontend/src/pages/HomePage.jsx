@@ -124,11 +124,11 @@ const HomePage = () => {
               >
                 <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                   <div className="text-center text-white p-4">
-                    <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'} font-heading font-bold mb-2 md:mb-4`}>
+                    <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-[60px]'} font-heading font-bold mb-2 md:mb-4`}>
                       {banner.title}
                     </h1>
                     {banner.subtitle && (
-                      <p className={`${isMobile ? 'text-lg' : 'text-xl sm:text-xl md:text-2xl lg:text-3xl'} font-body`}>
+                      <p className={`${isMobile ? 'text-lg' : 'text-xl sm:text-xl md:text-2xl lg:text-[25px]'} font-body`}>
                         {banner.subtitle}
                       </p>
                     )}

@@ -60,7 +60,7 @@ const BlogsPage = () => {
     <div className="pt-20 min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 font-heading text-gray-800">Our Blogs</h1>
+          <h1 className="text-4xl font-bold mb-4 font-heading text-[#13130F]">Our Blogs</h1>
           <p className="text-gray-600 font-body max-w-2xl mx-auto">
             Discover travel stories, tips, and insights from our team of experienced travelers and luxury stay experts.
           </p>
@@ -117,7 +117,7 @@ const BlogsPage = () => {
                         day: 'numeric'
                       })}
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-2 font-heading">{blog.title}</h3>
+                    <h3 className="text-lg font-bold text-[#13130F] mb-2 font-heading">{blog.title}</h3>
                     {blog.subtitle && (
                       <p className="text-gray-600 text-sm font-body mb-4">{blog.subtitle}</p>
                     )}

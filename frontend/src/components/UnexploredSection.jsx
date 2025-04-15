@@ -160,7 +160,7 @@ const UnexploredSection = () => {
             transition={{ duration: 0.5 }}
             className="max-w-lg text-left"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-gray-800 drop-shadow-sm">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-[#13130F] drop-shadow-sm">
               The Unexplored
             </h2>
             <p className="text-gray-600 font-body">
@@ -247,7 +247,7 @@ const UnexploredSection = () => {
                 
                 <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left">
                  
-                  <div className="text-gray-800 text-lg font-bold font-heading mb-3">
+                  <div className="text-[#13130F] text-lg font-bold font-heading mb-3">
                     {thing.heading || 'Unnamed Destination'}
                   </div>
                   <p className="text-gray-600 text-sm font-body line-clamp-3 mb-4">

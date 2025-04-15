@@ -316,7 +316,7 @@ const BannerManagement = ({ editingBanner = null, onEditComplete = () => {} }) =
                 setEditingId(null);
                 onEditComplete();
               }}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-md mr-3 font-body"
+              className="bg-gray-300 hover:bg-gray-400 text-[#13130F] px-5 py-2 rounded-md mr-3 font-body"
             >
               Cancel
             </button>

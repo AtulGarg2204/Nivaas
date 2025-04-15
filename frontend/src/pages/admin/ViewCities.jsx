@@ -216,7 +216,7 @@ const ViewCities = ({ onEditCity }) => {
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium font-body ${
                           city.showOnHome 
                             ? 'bg-purple-100 text-purple-800' 
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-gray-100 text-[#13130F]'
                         }`}>
                           {city.showOnHome ? (
                             <><Home size={14} className="mr-1" /> Show</>

@@ -469,7 +469,7 @@ const ViewProperties = ({ onEditProperty = () => {} }) => {
             <div className="p-4 bg-gray-50 border-t flex justify-end">
               <button 
                 onClick={() => setModalData(null)} 
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md font-body hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-[#13130F] rounded-md font-body hover:bg-gray-300"
               >
                 Close
               </button>

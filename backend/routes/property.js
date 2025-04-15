@@ -182,7 +182,7 @@ router.post('/:id/reviews', upload.single('profilePicture'), async (req, res) =>
       profilePicture: profilePictureData,
       rating: parseInt(req.body.rating),
       description: req.body.description,
-      source: req.body.source || 'direct', // Set review source with default to 'direct'
+      source: req.body.source || '', // Set review source with default to 'direct'
       isActive: req.body.isActive === 'true' || req.body.isActive === true
     };
     

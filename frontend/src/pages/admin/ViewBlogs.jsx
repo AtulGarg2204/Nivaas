@@ -369,7 +369,7 @@ const ViewBlogs = ({ onEditBlog = () => {} }) => {
               </button>
               <button 
                 onClick={() => setModalData(null)} 
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md font-body hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-[#13130F] rounded-md font-body hover:bg-gray-300"
               >
                 Close
               </button>

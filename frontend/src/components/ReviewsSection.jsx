@@ -67,7 +67,15 @@ const ReviewsSection = () => {
 
   // Function to get first letter of name
   const getInitial = (name) => {
-    return name && name.length > 0 ? name.charAt(0).toUpperCase() : "?";
+    if (!name || name.length === 0) return "??";
+    
+    // If name has at least 2 characters, return first 2
+    if (name.length >= 2) {
+      return name.substring(0, 2).toUpperCase();
+    }
+    
+    // If name has only 1 character, return it
+    return name.charAt(0).toUpperCase();
   };
 
   useEffect(() => {
@@ -196,7 +204,7 @@ const ReviewsSection = () => {
                 e.stopPropagation();
                 toggleExpanded(id);
               }}
-              className="mt-2 text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] text-sm font-medium flex items-center"
+              className="mt-2 text-[#ad8b3a] hover:text-[#a0936a] text-sm font-medium flex items-center"
             >
               Read more <ChevronDown size={16} className="ml-1" />
             </button>
@@ -214,7 +222,7 @@ const ReviewsSection = () => {
             e.stopPropagation();
             toggleExpanded(id);
           }}
-          className="mt-2 text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] text-sm font-medium flex items-center"
+          className="mt-2 text-[#ad8b3a] hover:text-[#a0936a] text-sm font-medium flex items-center"
         >
           Show less <ChevronUp size={16} className="ml-1" />
         </button>
@@ -243,64 +251,76 @@ const ReviewsSection = () => {
     return `calc(${100 / reviewsPerView}% - ${gapPercentage}px)`;
   };
 
-  // Generate avatar with first letter of name if no profile picture
-  const renderAvatar = (review, index) => {
-    if (review.profilePicture) {
-      return (
-        <div className="relative">
-          <img 
-            src={review.profilePicture} 
-            alt={review.userName} 
-            className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
-          />
-          {/* Source icon overlay */}
-          {review.source && getReviewSourceIcon(review.source) && (
-            <div className="absolute bottom-0 right-4 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
-              <img 
-                src={getReviewSourceIcon(review.source)} 
-                alt={review.source}
-                className="w-5 h-5 object-cover" 
-                style={{
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  borderRadius: '50%'
-                }}
-              />
-            </div>
-          )}
-        </div>
-      );
-    } else {
-      // Get first character of username 
-      const initial = getInitial(review.userName);
-      
-      // Use the same random color generation approach as PropertyDetails
-      const randomColor = getRandomColor(review.userName + index);
-      
-      return (
-        <div className="relative">
-          <div className={`w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm flex items-center justify-center ${randomColor} text-white font-bold text-lg`}>
-            {initial}
+  // Updated renderAvatar function with custom positioning for source icon
+const renderAvatar = (review, index) => {
+  if (review.profilePicture) {
+    return (
+      <div className="relative">
+        <img 
+          src={review.profilePicture} 
+          alt={review.userName} 
+          className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm"
+        />
+        {/* Source icon overlay - custom positioning */}
+        {review.source && getReviewSourceIcon(review.source) && (
+          <div 
+            className="absolute w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white"
+            style={{
+              bottom: "-5px",
+              right: "0.8rem"
+            }}
+          >
+            <img 
+              src={getReviewSourceIcon(review.source)} 
+              alt={review.source}
+              className="w-5 h-5 object-cover" 
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: '50%'
+              }}
+            />
           </div>
-          {/* Source icon overlay */}
-          {review.source && getReviewSourceIcon(review.source) && (
-            <div className="absolute bottom-0 right-4 w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white">
-              <img 
-                src={getReviewSourceIcon(review.source)} 
-                alt={review.source}
-                className="w-5 h-5 object-cover" 
-                style={{
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  borderRadius: '50%'
-                }}
-              />
-            </div>
-          )}
+        )}
+      </div>
+    );
+  } else {
+    // Get first two characters of username 
+    const initial = getInitial(review.userName);
+    
+    // Use the same random color generation approach as PropertyDetails
+    const randomColor = getRandomColor(review.userName + index);
+    
+    return (
+      <div className="relative">
+        <div className={`w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm flex items-center justify-center ${randomColor} text-white font-bold text-lg`}>
+          {initial}
         </div>
-      );
-    }
-  };
+        {/* Source icon overlay - custom positioning */}
+        {review.source && getReviewSourceIcon(review.source) && (
+          <div 
+            className="absolute w-6 h-6 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-white"
+            style={{
+              bottom: "-5px",
+              right: "0.8rem"
+            }}
+          >
+            <img 
+              src={getReviewSourceIcon(review.source)} 
+              alt={review.source}
+              className="w-5 h-5 object-cover" 
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: '50%'
+              }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+};
 
 
   const itemVariants = {
@@ -403,7 +423,7 @@ const ReviewsSection = () => {
             className="text-left"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl md:text-4xl font-normal font-heading text-gray-800 text-left">
+              <h2 className="text-3xl md:text-4xl font-normal font-heading text-[#13130F] text-left">
                 HAPPY GUEST <span className="text-[#a0936a]">STORIES</span>
               </h2>
               
@@ -417,12 +437,12 @@ const ReviewsSection = () => {
                   <motion.button 
                     onClick={() => scroll('left')}
                     disabled={activeIndex === 0}
-                    whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                    whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                     whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
                     className={`p-2 rounded-full shadow-md cursor-pointer ${
                       activeIndex === 0 
                         ? 'bg-gray-100 text-gray-300 opacity-50' 
-                        : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                        : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                     }`}
                     aria-label="Previous"
                   >
@@ -431,12 +451,12 @@ const ReviewsSection = () => {
                   <motion.button 
                     onClick={() => scroll('right')}
                     disabled={activeIndex >= maxScrollIndex}
-                    whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                    whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                     whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
                     className={`p-2 rounded-full shadow-md cursor-pointer ${
                       activeIndex >= maxScrollIndex 
                         ? 'bg-gray-100 text-gray-300 opacity-50' 
-                        : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                        : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                     }`}
                     aria-label="Next"
                   >
@@ -460,12 +480,12 @@ const ReviewsSection = () => {
               <motion.button 
                 onClick={() => scroll('left')}
                 disabled={activeIndex === 0}
-                whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                 whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
                 className={`p-2 rounded-full shadow-md cursor-pointer ${
                   activeIndex === 0 
                     ? 'bg-gray-100 text-gray-300 opacity-50' 
-                    : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                    : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                 }`}
                 aria-label="Previous"
               >
@@ -474,12 +494,12 @@ const ReviewsSection = () => {
               <motion.button 
                 onClick={() => scroll('right')}
                 disabled={activeIndex >= maxScrollIndex}
-                whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                 whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
                 className={`p-2 rounded-full shadow-md cursor-pointer ${
                   activeIndex >= maxScrollIndex 
                     ? 'bg-gray-100 text-gray-300 opacity-50' 
-                    : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                    : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                 }`}
                 aria-label="Next"
               >
@@ -508,53 +528,56 @@ const ReviewsSection = () => {
               const isExpanded = expandedReviews[reviewId];
               
               return (
-                <motion.div 
-                  key={reviewId}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="review-card"
-                  style={{ 
-                    width: getCardWidth(),
-                    flexShrink: 0,
-                    scrollSnapAlign: 'start', // Snap to start of card
-                    isolation: isExpanded ? 'isolate' : 'auto'
-                  }}
-                >
-                  <div 
-                    className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100/80 flex flex-col relative transform transition-all duration-500 hover:shadow-xl hover:-translate-y-1 h-full"
-                    style={{
-                      background: "white",
-                      overflow: 'visible',
-                      transition: 'all 0.3s ease',
-                      zIndex: isExpanded ? 10 : 1
-                    }}
-                  >
-                    {/* Decorative quote element */}
-                    <div className="absolute -top-2 -right-2 text-gray-200 transform rotate-12">
-                      <Quote size={40} />
-                    </div>
-                    
-                    <div className="flex mb-3 relative z-10 text-left">
-                      {renderStars(review.rating)}
-                    </div>
-                    
-                    <div className={`mb-6 flex-grow relative z-10 w-full ${isExpanded ? 'expanded-content' : ''}`}>
-                      {renderReviewText(review, index)}
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-400 relative z-10">
-                      <div className="flex items-center">
-                        {renderAvatar(review, index)}
-                        <div className="text-left">
-                          <p className="font-medium font-body text-gray-900">{review.userName}</p>
-                          <p className="text-gray-500 text-sm font-body">{review.propertyName}</p>
-                          <p className="text-gray-400 text-xs font-body">{review.city}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+              // Update this part of the JSX in your ReviewsSection component
+// Replace the review card's div element with this version
+
+<motion.div 
+  key={reviewId}
+  variants={itemVariants}
+  initial="hidden"
+  animate="visible"
+  className="review-card"
+  style={{ 
+    width: getCardWidth(),
+    flexShrink: 0,
+    scrollSnapAlign: 'start', // Snap to start of card
+    isolation: isExpanded ? 'isolate' : 'auto'
+  }}
+>
+  <div 
+    className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 flex flex-col relative transform transition-all duration-500 hover:-translate-y-1 h-full"
+    style={{
+      background: "white",
+      overflow: 'visible',
+      transition: 'all 0.3s ease',
+      zIndex: isExpanded ? 10 : 1
+    }}
+  >
+    {/* Decorative quote element */}
+    <div className="absolute -top-2 -right-2 text-gray-200 transform rotate-12">
+      <Quote size={40} />
+    </div>
+    
+    <div className="flex mb-3 relative z-10 text-left">
+      {renderStars(review.rating)}
+    </div>
+    
+    <div className={`mb-6 flex-grow relative z-10 w-full ${isExpanded ? 'expanded-content' : ''}`}>
+      {renderReviewText(review, index)}
+    </div>
+    
+    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 relative z-10">
+      <div className="flex items-center">
+        {renderAvatar(review, index)}
+        <div className="text-left">
+          <p className="font-medium font-body text-gray-900">{review.userName}</p>
+          <p className="text-gray-500 text-sm font-body">{review.propertyName}</p>
+          <p className="text-gray-400 text-xs font-body">{review.city}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</motion.div>
               );
             })}
           </div>

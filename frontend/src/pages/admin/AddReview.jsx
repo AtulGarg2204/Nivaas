@@ -14,7 +14,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
     propertyName: '', // Property name field
     rating: 5,
     description: '',
-    source: 'direct', // Default source as direct
+    source: 'airbnb', // Default source as direct
     isActive: true
   });
   const [profilePicture, setProfilePicture] = useState(null);
@@ -27,7 +27,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
     { value: 'makemytrip', label: 'MakeMyTrip' },
     { value: 'goibibo', label: 'Goibibo' },
     { value: 'google', label: 'Google' },
-    { value: 'direct', label: 'Direct' }
+   
   ];
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
         propertyName: editingReview.propertyName || '',
         rating: editingReview.rating || 5,
         description: editingReview.description || '',
-        source: editingReview.source || editingReview.referenceApp?.name || 'direct',
+        source: editingReview.source || editingReview.referenceApp?.name || 'airbnb',
         isActive: editingReview.isActive !== undefined ? editingReview.isActive : true
       });
       
@@ -180,7 +180,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
         propertyName: properties.length > 0 ? properties[0].name || '' : '',
         rating: 5,
         description: '',
-        source: 'direct',
+        source: 'airbnb',
         isActive: true
       });
       setProfilePicture(null);
@@ -330,7 +330,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
               </select>
               <div className="mt-2 text-sm text-gray-500 flex items-center">
                 <i className={`${getSourceIcon(formData.source)} mr-2`}></i>
-                <span>Selected source: {reviewSources.find(s => s.value === formData.source)?.label || 'Direct'}</span>
+                <span>Selected source: {reviewSources.find(s => s.value === formData.source)?.label || 'airbnb'}</span>
               </div>
             </div>
             
@@ -412,7 +412,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
                     propertyName: properties.length > 0 ? properties[0].name || '' : '',
                     rating: 5,
                     description: '',
-                    source: 'direct',
+                    source: 'airbnb',
                     isActive: true
                   });
                   setProfilePicture(null);
@@ -420,7 +420,7 @@ const AddReview = ({ editingReview = null, onEditComplete = () => {} }) => {
                   setEditingId(null);
                   onEditComplete();
                 }}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-md mr-3 font-body"
+                className="bg-gray-300 hover:bg-gray-400 text-[#13130F] px-5 py-2 rounded-md mr-3 font-body"
               >
                 Cancel
               </button>

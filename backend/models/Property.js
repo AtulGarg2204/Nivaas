@@ -40,11 +40,11 @@ const ReviewSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // Added source field for review platforms
+  // Fixed source field: added empty string to enum values
   source: {
     type: String,
-    enum: ['airbnb', 'makemytrip', 'goibibo', 'google', 'direct'],
-    default: 'direct'
+    enum: ['', 'airbnb', 'makemytrip', 'goibibo', 'google'],
+    default: ''
   },
   isActive: {
     type: Boolean,

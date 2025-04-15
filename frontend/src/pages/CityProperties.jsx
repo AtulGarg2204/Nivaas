@@ -218,7 +218,7 @@ const CityProperties = () => {
         </div>
         <div className="bg-gray-200 h-2 rounded-full mb-4 relative">
           <div 
-            className="absolute h-full bg-[rgba(14,63,68,0.95)] rounded-full" 
+            className="absolute h-full bg-[#ad8b3a] rounded-full" 
             style={{
               left: `${((filters.minPrice || priceRange[0]) - 5000) / (200000 - 5000) * 100}%`,
               right: `${100 - ((filters.maxPrice || priceRange[1]) - 5000) / (200000 - 5000) * 100}%`
@@ -261,8 +261,8 @@ const CityProperties = () => {
               onClick={() => handleBhkFilter(bhk)}
               className={`py-1 px-2 border text-xs font-body rounded-md ${
                 activeBhk === bhk
-                  ? 'bg-[rgba(14,63,68,0.95)] text-white border-[rgba(14,63,68,0.95)]'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-[rgba(14,63,68,0.95)]'
+                  ? 'bg-[#ad8b3a] text-white border-[#ad8b3a]'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#ad8b3a]'
               }`}
             >
               {bhk} BHK
@@ -296,7 +296,7 @@ const CityProperties = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[rgba(14,63,68,0.95)]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ad8b3a]"></div>
       </div>
     );
   }
@@ -307,7 +307,7 @@ const CityProperties = () => {
         <div className="text-center text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
           <h2 className="text-2xl font-medium font-subheading mb-4">Error</h2>
           <p>{error}</p>
-          <Link to="/" className="mt-4 inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body">
+          <Link to="/" className="mt-4 inline-block bg-[#ad8b3a] text-white py-2 px-4 rounded-md font-body">
             Return to Home
           </Link>
         </div>
@@ -321,7 +321,7 @@ const CityProperties = () => {
         <div className="text-center text-red-500 font-body p-8 bg-white rounded-lg shadow-md">
           <h2 className="text-2xl font-medium font-subheading mb-4">City Not Found</h2>
           <p>The city you are looking for does not exist.</p>
-          <Link to="/" className="mt-4 inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body">
+          <Link to="/" className="mt-4 inline-block bg-[#ad8b3a] text-white py-2 px-4 rounded-md font-body">
             Return to Home
           </Link>
         </div>
@@ -343,15 +343,13 @@ const CityProperties = () => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gray-800"></div>
+          <div className="w-full h-full bg-[#13130F]"></div>
         )}
         <div className="absolute inset-0 bg-black/40"></div> {/* Slightly darker overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading uppercase tracking-wide mb-4">{city.name}</h1>
-            <div className="bg-[rgba(14,63,68,0.95)] text-white text-sm font-medium px-4 py-1 rounded-full font-body inline-block">
-              Discover amazing places in {city.name}
-            </div>
+            
           </div>
         </div>
       </div>
@@ -369,7 +367,7 @@ const CityProperties = () => {
                 <p className="text-gray-600 font-body mb-4">
                   There are currently no properties available in this location.
                 </p>
-                <Link to="/" className="inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body">
+                <Link to="/" className="inline-block bg-[#ad8b3a] text-white py-2 px-4 rounded-md font-body">
                   Explore Other Locations
                 </Link>
               </div>
@@ -433,7 +431,7 @@ const CityProperties = () => {
                           </button>
                           <button 
                             onClick={applyMobileFilters}
-                            className="flex-1 py-3 bg-[rgba(14,63,68,0.95)] text-white rounded-md font-body"
+                            className="flex-1 py-3 bg-[#ad8b3a] text-white rounded-md font-body"
                           >
                             Apply
                           </button>
@@ -454,7 +452,7 @@ const CityProperties = () => {
                       </div>
                       <button 
                         onClick={clearAllFilters}
-                        className="text-sm text-[#a0936a] hover:text-[rgba(14,63,68,0.95)] font-body"
+                        className="text-sm text-[#a0936a] hover:text-[#ad8b3a] font-body"
                       >
                         Clear All
                       </button>
@@ -469,7 +467,7 @@ const CityProperties = () => {
                   {/* Properties List Section */}
                   {filteredProperties.length > 0 ? (
                     <div className="mb-12">
-                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-gray-800 mb-6 pl-4">Properties in {city.name}</h2>
+                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-[#13130F] mb-6 pl-4">Properties in {city.name}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 px-4">
                         {filteredProperties.map((property) => (
                           <Link 
@@ -500,7 +498,7 @@ const CityProperties = () => {
                               {/* Property Details below image */}
                               <div className="p-4">
                                 <div className="mb-2">
-                                  <h3 className="text-lg text-left font-medium font-subheading text-gray-800">{property.name}</h3>
+                                  <h3 className="text-lg text-left font-medium font-subheading text-[#13130F]">{property.name}</h3>
                                   <div className="text-gray-600 text-left text-sm font-body">
                                     {property.subplace && `${property.subplace}, `}{city.name}
                                   </div>
@@ -559,7 +557,7 @@ const CityProperties = () => {
                       </p>
                       <button
                         onClick={clearAllFilters}
-                        className="inline-block bg-[rgba(14,63,68,0.95)] text-white py-2 px-4 rounded-md font-body"
+                        className="inline-block bg-[#ad8b3a] text-white py-2 px-4 rounded-md font-body"
                       >
                         Reset Filters
                       </button>
@@ -569,7 +567,7 @@ const CityProperties = () => {
                   {/* The Unexplored Section with Blogs - Now adjusted to match property cards */}
                   {blogs.length > 0 && (
                     <div className="px-4">
-                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-gray-800 mb-6">The Unexplored {city.name}</h2>
+                      <h2 className="text-2xl font-heading uppercase tracking-wide text-left text-[#13130F] mb-6">The Unexplored {city.name}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                         {blogs.map((blog) => (
                           <Link 
@@ -596,7 +594,7 @@ const CityProperties = () => {
                             </div>
                             {/* Blog Content */}
                             <div className="p-4">
-                              <h3 className="text-lg font-medium font-subheading mb-2 text-gray-800">{blog.title}</h3>
+                              <h3 className="text-lg font-medium font-subheading mb-2 text-[#13130F]">{blog.title}</h3>
                               <p className="text-gray-600 text-sm font-body line-clamp-2 mb-3">{blog.description}</p>
                               
                               <div className="flex justify-between items-center pt-2 border-t border-gray-100">

@@ -40,8 +40,8 @@ const ReviewSchema = new mongoose.Schema({
   // Changed from referenceApp object to source field
   source: {
     type: String,
-    enum: ['airbnb', 'makemytrip', 'goibibo', 'google', 'direct'],
-    default: 'direct'
+    enum: ['airbnb', 'makemytrip', 'goibibo', 'google', 'airbnb'],
+    default: ''
   },
   isActive: {
     type: Boolean,

@@ -18,7 +18,20 @@ const LocationPicker = () => {
       try {
         setLoading(true);
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/cities`);
-        setCities(res.data.filter(city => city.isActive));
+        // Filter active cities and ensure newly created ones appear at the end
+        // First, let's get all active cities
+        const activeCities = res.data.filter(city => city.isActive);
+        
+        // Now sort by creation date (newest last)
+        // This ensures newer cities appear at the end of the list
+        const sortedCities = activeCities.sort((a, b) => {
+          // Parse the dates and compare them
+          const dateA = new Date(a.createdAt || 0);
+          const dateB = new Date(b.createdAt || 0);
+          return dateA - dateB; // Ascending order by date (older first, newer last)
+        });
+        
+        setCities(sortedCities);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching cities:', error);
@@ -179,7 +192,7 @@ const LocationPicker = () => {
               {/* Regular text remains font-body with font-normal (default) */}
               <p className="text-white/90 text-xs font-body">
                 {city.showOnHome 
-                  ? `Discover amazing places in ${city.name}`
+                  ? ` `
                   : "Coming soon"
                 }
               </p>
@@ -220,7 +233,7 @@ const LocationPicker = () => {
           >
             <div className="flex items-center justify-between">
               {/* Main heading in Cinzel with all capitals and font-weight 400 */}
-              <h2 className="text-3xl md:text-4xl font-heading text-gray-800 text-left uppercase tracking-wide">
+              <h2 className="text-3xl md:text-4xl font-heading text-[#13130F] text-left uppercase tracking-wide">
                 PICK YOUR LOCATION
               </h2>
               
@@ -232,12 +245,12 @@ const LocationPicker = () => {
                 <motion.button 
                   onClick={() => scroll('left')}
                   disabled={activeIndex === 0}
-                  whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                  whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                   whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md cursor-pointer ${
                     activeIndex === 0 
                       ? 'bg-gray-100 text-gray-300 opacity-50' 
-                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                      : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Previous"
                 >
@@ -246,12 +259,12 @@ const LocationPicker = () => {
                 <motion.button 
                   onClick={() => scroll('right')}
                   disabled={activeIndex >= maxScrollIndex}
-                  whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+                  whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
                   whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full shadow-md cursor-pointer ${
                     activeIndex >= maxScrollIndex 
                       ? 'bg-gray-100 text-gray-300 opacity-50' 
-                      : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                      : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
                   }`}
                   aria-label="Next"
                 >
@@ -273,12 +286,12 @@ const LocationPicker = () => {
             <motion.button 
               onClick={() => scroll('left')}
               disabled={activeIndex === 0}
-              whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+              whileHover={activeIndex !== 0 ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
               whileTap={activeIndex !== 0 ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md cursor-pointer ${
                 activeIndex === 0 
                   ? 'bg-gray-100 text-gray-300 opacity-50' 
-                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                  : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
               }`}
               aria-label="Previous"
             >
@@ -287,12 +300,12 @@ const LocationPicker = () => {
             <motion.button 
               onClick={() => scroll('right')}
               disabled={activeIndex >= maxScrollIndex}
-              whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "rgba(14,63,68,0.95)", color: "#ffffff" } : {}}
+              whileHover={activeIndex < maxScrollIndex ? { scale: 1.05, backgroundColor: "#ad8b3a", color: "#ffffff" } : {}}
               whileTap={activeIndex < maxScrollIndex ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full shadow-md cursor-pointer ${
                 activeIndex >= maxScrollIndex 
                   ? 'bg-gray-100 text-gray-300 opacity-50' 
-                  : 'bg-white text-[rgba(14,63,68,0.95)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white transition-all duration-300'
+                  : 'bg-white text-[#ad8b3a] hover:bg-[#ad8b3a] hover:text-white transition-all duration-300'
               }`}
               aria-label="Next"
             >
@@ -317,7 +330,6 @@ const LocationPicker = () => {
             {cities.map((city, index) => (
               <div
                 key={city._id} 
-                className="location-card"
                 data-index={index}
                 style={{ 
                   width: getCardWidth(),

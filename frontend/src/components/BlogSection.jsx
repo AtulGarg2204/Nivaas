@@ -165,7 +165,7 @@ const BlogSection = () => {
           >
             <div className="flex items-center justify-between">
               {/* Main heading in Cinzel, all uppercase */}
-              <h2 className="text-3xl md:text-4xl font-heading text-gray-800 uppercase tracking-wide drop-shadow-sm">
+              <h2 className="text-3xl md:text-4xl font-heading text-[#13130F] uppercase tracking-wide drop-shadow-sm">
                 BLOGS
               </h2>
               
@@ -178,12 +178,12 @@ const BlogSection = () => {
                 <motion.button 
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}
-                  whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: 'rgba(14,63,68,0.95)' } : {}}
+                  whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: '#ad8b3a' } : {}}
                   whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full border shadow-sm ${
                     currentIndex === 0 
                       ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                      : 'text-[rgba(14,63,68,0.95)] border-[rgba(14,63,68,0.3)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white hover:border-[rgba(14,63,68,0.95)] transition-all duration-300'
+                      : 'text-[#ad8b3a] border-[rgba(14,63,68,0.3)] hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
                   }`}
                   aria-label="Previous"
                 >
@@ -192,12 +192,12 @@ const BlogSection = () => {
                 <motion.button 
                   onClick={handleNext}
                   disabled={currentIndex + blogsPerPage >= blogs.length}
-                  whileHover={currentIndex + blogsPerPage < blogs.length ? { scale: 1.05, backgroundColor: 'rgba(14,63,68,0.95)' } : {}}
+                  whileHover={currentIndex + blogsPerPage < blogs.length ? { scale: 1.05, backgroundColor: '#ad8b3a' } : {}}
                   whileTap={currentIndex + blogsPerPage < blogs.length ? { scale: 0.95 } : {}}
                   className={`p-2 rounded-full border shadow-sm ${
                     currentIndex + blogsPerPage >= blogs.length 
                       ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                      : 'text-[rgba(14,63,68,0.95)] border-[rgba(14,63,68,0.3)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white hover:border-[rgba(14,63,68,0.95)] transition-all duration-300'
+                      : 'text-[#ad8b3a] border-[rgba(14,63,68,0.3)] hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
                   }`}
                   aria-label="Next"
                 >
@@ -219,12 +219,12 @@ const BlogSection = () => {
             <motion.button 
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: 'rgba(14,63,68,0.95)' } : {}}
+              whileHover={currentIndex !== 0 ? { scale: 1.05, backgroundColor: '#ad8b3a' } : {}}
               whileTap={currentIndex !== 0 ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full border shadow-sm ${
                 currentIndex === 0 
                   ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                  : 'text-[rgba(14,63,68,0.95)] border-[rgba(14,63,68,0.3)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white hover:border-[rgba(14,63,68,0.95)] transition-all duration-300'
+                  : 'text-[#ad8b3a] border-[rgba(14,63,68,0.3)] hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
               }`}
               aria-label="Previous"
             >
@@ -233,12 +233,12 @@ const BlogSection = () => {
             <motion.button 
               onClick={handleNext}
               disabled={currentIndex + blogsPerPage >= blogs.length}
-              whileHover={currentIndex + blogsPerPage < blogs.length ? { scale: 1.05, backgroundColor: 'rgba(14,63,68,0.95)' } : {}}
+              whileHover={currentIndex + blogsPerPage < blogs.length ? { scale: 1.05, backgroundColor: '#ad8b3a' } : {}}
               whileTap={currentIndex + blogsPerPage < blogs.length ? { scale: 0.95 } : {}}
               className={`p-2 rounded-full border shadow-sm ${
                 currentIndex + blogsPerPage >= blogs.length 
                   ? 'text-gray-300 border-gray-300 cursor-not-allowed' 
-                  : 'text-[rgba(14,63,68,0.95)] border-[rgba(14,63,68,0.3)] hover:bg-[rgba(14,63,68,0.95)] hover:text-white hover:border-[rgba(14,63,68,0.95)] transition-all duration-300'
+                  : 'text-[#ad8b3a] border-[rgba(14,63,68,0.3)] hover:bg-[#ad8b3a] hover:text-white hover:border-[#ad8b3a] transition-all duration-300'
               }`}
               aria-label="Next"
             >
@@ -260,53 +260,54 @@ const BlogSection = () => {
               className="flex flex-col"
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
             >
-              <Link to={`/blog/${blog._id}`}>
-                <div className="bg-white rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.1)] border border-gray-100/80 flex flex-col h-full transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
-                  <div className="relative">
-                    <div className="aspect-[4/3] overflow-hidden">
-                      {/* Reflection effect on top */}
-                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/20 to-transparent z-20"></div>
-                      
-                      {/* Gradient overlay on image */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-300"></div>
-                      
-                      {blog.backgroundImage?.data ? (
-                        <img 
-                          src={blog.backgroundImage.data} 
-                          alt={blog.title} 
-                          className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                          <Compass className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                  
-                  </div>
-                  
-                  <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left flex flex-col">
-                    {/* Changed to font-subheading (Inter) with font-medium (500) */}
-                    <div className="text-gray-800 text-lg font-medium font-subheading mb-2">
-                      {blog.title || 'Unnamed Blog'}
-                    </div>
-                    
-                    {/* Fixed height for description with single line only */}
-                    <div className="h-6 overflow-hidden text-gray-600 text-sm font-body mb-4">
-                      {blog.description || 'No description available'}
-                    </div>
-                    
-                    <div className="mt-auto">
-                      <div className="inline-flex items-center text-sm font-medium text-[rgba(14,63,68,0.95)] hover:text-[#a0936a] transition-colors group cursor-pointer">
-                        <span>Read more</span>
-                        <svg className="ml-1 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+      
+<Link to={`/blog/${blog._id}`}>
+  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 flex flex-col h-full transition-all duration-300">
+    <div className="relative">
+      <div className="aspect-[4/3] overflow-hidden">
+        {/* Reflection effect on top */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/20 to-transparent z-20"></div>
+        
+        {/* Gradient overlay on image */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-300"></div>
+        
+        {blog.backgroundImage?.data ? (
+          <img 
+            src={blog.backgroundImage.data} 
+            alt={blog.title} 
+            className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <Compass className="w-12 h-12 text-gray-300" />
+          </div>
+        )}
+      </div>
+    
+    </div>
+    
+    <div className="p-5 flex-grow bg-gradient-to-b from-white to-gray-50/70 text-left flex flex-col">
+      {/* Changed to font-subheading (Inter) with font-medium (500) */}
+      <div className="text-[#13130F] text-lg font-medium font-subheading mb-2">
+        {blog.title || 'Unnamed Blog'}
+      </div>
+      
+      {/* Fixed height for description with single line only */}
+      <div className="h-6 overflow-hidden text-gray-600 text-sm font-body mb-4">
+        {blog.description || 'No description available'}
+      </div>
+      
+      <div className="mt-auto">
+        <div className="inline-flex items-center text-sm font-medium text-[#ad8b3a] hover:text-black transition-colors group cursor-pointer">
+          <span>Read more</span>
+          <svg className="ml-1 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</Link>
             </motion.div>
           ))}
         </motion.div>
